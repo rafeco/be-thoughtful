@@ -32,6 +32,7 @@ class PersonForm(FlaskForm):
     card_preference = SelectField('Card Preference', choices=CARD_PREFERENCES, default='E-card')
     gets_gift = BooleanField('Gets Gift')
     notes = TextAreaField('Notes', validators=[Optional()])
+    ai_chat_link = StringField('AI Chat Link', validators=[Optional()])
     submit = SubmitField('Save')
 
 

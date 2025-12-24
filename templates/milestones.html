@@ -62,4 +62,103 @@
         </div>
     </div>
 </div>
+
+<!-- E-card AI Assistant -->
+<div class="row mt-4">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">E-card Message Assistant</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Use AI to help craft your e-card message for everyone getting an e-card.</p>
+                <button type="button" class="btn btn-outline-primary mb-3" id="copyEcardPrompt">
+                    <i class="bi bi-clipboard"></i> Copy E-card Writing Prompt
+                </button>
+
+                {% set december_milestone = milestones|selectattr('phase', 'equalto', 'December')|first %}
+                {% if december_milestone %}
+                <div>
+                    <label class="form-label">Claude Chat Link for E-card:</label>
+                    <div class="input-group">
+                        <input type="url" class="form-control" id="ecardChatLink"
+                               value="{{ december_milestone.ai_chat_link or '' }}"
+                               placeholder="Paste your Claude chat link here">
+                        <button class="btn btn-outline-secondary" type="button" id="saveEcardLink" data-milestone-id="{{ december_milestone.id }}">
+                            <i class="bi bi-save"></i> Save
+                        </button>
+                    </div>
+                    {% if december_milestone.ai_chat_link %}
+                    <a href="{{ december_milestone.ai_chat_link }}" target="_blank" class="btn btn-link btn-sm p-0 mt-2">
+                        <i class="bi bi-box-arrow-up-right"></i> Open E-card Chat
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Copy E-card Prompt button
+    const copyEcardBtn = document.getElementById('copyEcardPrompt');
+    if (copyEcardBtn) {
+        copyEcardBtn.addEventListener('click', async function() {
+            const ecardStats = {
+                totalRecipients: {{ (milestones|length * 10)|string }}, // Placeholder
+                breakdown: 'Professional contacts and colleagues'
+            };
+            const prompt = generateEcardPrompt(ecardStats);
+            const success = await copyToClipboard(prompt);
+            if (success) {
+                showCopyFeedback(this);
+            } else {
+                alert('Failed to copy to clipboard');
+            }
+        });
+    }
+
+    // Save E-card Link button
+    const saveEcardBtn = document.getElementById('saveEcardLink');
+    if (saveEcardBtn) {
+        saveEcardBtn.addEventListener('click', async function() {
+            const linkInput = document.getElementById('ecardChatLink');
+            const link = linkInput.value.trim();
+            const milestoneId = this.dataset.milestoneId;
+
+            try {
+                const response = await fetch(`/milestones/${milestoneId}/update-link`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ ai_chat_link: link })
+                });
+
+                if (response.ok) {
+                    this.innerHTML = '<i class="bi bi-check"></i>';
+                    this.classList.add('btn-success');
+                    this.classList.remove('btn-outline-secondary');
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="bi bi-save"></i> Save';
+                        this.classList.remove('btn-success');
+                        this.classList.add('btn-outline-secondary');
+                        // Reload to show/hide "Open Chat" link
+                        window.location.reload();
+                    }, 1000);
+                } else {
+                    alert('Failed to save link');
+                }
+            } catch (error) {
+                console.error('Error saving link:', error);
+                alert('Failed to save link');
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

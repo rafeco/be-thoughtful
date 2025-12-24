@@ -122,7 +122,8 @@ def person_new():
             person_type=form.person_type.data,
             card_preference=form.card_preference.data,
             gets_gift=form.gets_gift.data,
-            notes=form.notes.data
+            notes=form.notes.data,
+            ai_chat_link=form.ai_chat_link.data
         )
         db.session.add(person)
         db.session.commit()
@@ -182,6 +183,7 @@ def person_edit(id):
         person.card_preference = form.card_preference.data
         person.gets_gift = form.gets_gift.data
         person.notes = form.notes.data
+        person.ai_chat_link = form.ai_chat_link.data
 
         db.session.commit()
         flash(f'Updated {person.name}!', 'success')
@@ -385,6 +387,23 @@ def milestone_toggle(id):
     return jsonify({
         'success': True,
         'completed': milestone.completed
+    })
+
+
+@app.route('/milestones/<int:id>/update-link', methods=['POST'])
+def milestone_update_link(id):
+    """Update milestone AI chat link."""
+    milestone = Milestone.query.get_or_404(id)
+
+    data = request.get_json()
+    ai_chat_link = data.get('ai_chat_link', '').strip()
+
+    milestone.ai_chat_link = ai_chat_link if ai_chat_link else None
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'ai_chat_link': milestone.ai_chat_link
     })
 
 

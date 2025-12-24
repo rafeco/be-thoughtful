@@ -14,6 +14,7 @@ class Person(db.Model):
     card_preference = db.Column(db.String(20), default='E-card')
     gets_gift = db.Column(db.Boolean, default=False)
     notes = db.Column(db.Text)
+    ai_chat_link = db.Column(db.String(500))
     active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -65,6 +66,7 @@ class Milestone(db.Model):
     completed = db.Column(db.Boolean, default=False)
     completed_date = db.Column(db.Date)
     year = db.Column(db.Integer, nullable=False)
+    ai_chat_link = db.Column(db.String(500))
 
     __table_args__ = (db.UniqueConstraint('phase', 'year', name='unique_phase_year'),)
 

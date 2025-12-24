@@ -64,6 +64,33 @@
                     <dd class="col-sm-8">{{ person.notes }}</dd>
                     {% endif %}
                 </dl>
+
+                <!-- AI Assistant -->
+                <div class="card-footer bg-light">
+                    <h6 class="mb-2">AI Assistant</h6>
+                    <button type="button" class="btn btn-sm btn-outline-primary mb-2" id="copyGiftPrompt">
+                        <i class="bi bi-clipboard"></i> Copy Gift Idea Prompt
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary mb-2" id="copyCardPrompt">
+                        <i class="bi bi-clipboard"></i> Copy Card Writing Prompt
+                    </button>
+                    <div class="mt-2">
+                        <label class="form-label small text-muted">Claude Chat Link:</label>
+                        <div class="input-group input-group-sm">
+                            <input type="url" class="form-control" id="aiChatLink"
+                                   value="{{ person.ai_chat_link or '' }}"
+                                   placeholder="Paste your Claude chat link here">
+                            <button class="btn btn-outline-secondary" type="button" id="saveAiLink">
+                                <i class="bi bi-save"></i>
+                            </button>
+                        </div>
+                        {% if person.ai_chat_link %}
+                        <a href="{{ person.ai_chat_link }}" target="_blank" class="btn btn-link btn-sm p-0 mt-1">
+                            <i class="bi bi-box-arrow-up-right"></i> Open Chat
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -184,4 +211,94 @@
     </div>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Prepare person data for AI prompts
+    const personData = {
+        name: {{ person.name|tojson }},
+        type: {{ person.person_type|tojson }},
+        notes: {{ person.notes|tojson }},
+        cardPreference: {{ person.card_preference|tojson }},
+        giftIdeas: [
+            {% for idea in gift_ideas if not idea.used_year %}
+                {{ idea.idea|tojson }}{{ ',' if not loop.last else '' }}
+            {% endfor %}
+        ],
+        pastGifts: [
+            {% for task in gift_history %}
+                { year: {{ task.year }}, gift: {{ task.actual_gift|tojson }} }{{ ',' if not loop.last else '' }}
+            {% endfor %}
+        ]
+    };
+
+    // Copy Gift Prompt button
+    document.getElementById('copyGiftPrompt').addEventListener('click', async function() {
+        const prompt = generateGiftPrompt(personData);
+        const success = await copyToClipboard(prompt);
+        if (success) {
+            showCopyFeedback(this);
+        } else {
+            alert('Failed to copy to clipboard');
+        }
+    });
+
+    // Copy Card Prompt button
+    document.getElementById('copyCardPrompt').addEventListener('click', async function() {
+        const prompt = generateCardPrompt(personData);
+        const success = await copyToClipboard(prompt);
+        if (success) {
+            showCopyFeedback(this);
+        } else {
+            alert('Failed to copy to clipboard');
+        }
+    });
+
+    // Save AI Chat Link button
+    document.getElementById('saveAiLink').addEventListener('click', async function() {
+        const linkInput = document.getElementById('aiChatLink');
+        const link = linkInput.value.trim();
+
+        try {
+            const response = await fetch(`/people/{{ person.id }}/edit`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'csrf_token': '{{ form.csrf_token._value() if form else "" }}',
+                    'name': {{ person.name|tojson }},
+                    'email': {{ person.email|tojson }},
+                    'phone': {{ person.phone|tojson }},
+                    'person_type': {{ person.person_type|tojson }},
+                    'card_preference': {{ person.card_preference|tojson }},
+                    'gets_gift': {{ 'true' if person.gets_gift else 'false' }},
+                    'notes': {{ person.notes|tojson }},
+                    'ai_chat_link': link
+                })
+            });
+
+            if (response.ok) {
+                this.innerHTML = '<i class="bi bi-check"></i>';
+                this.classList.add('btn-success');
+                this.classList.remove('btn-outline-secondary');
+                setTimeout(() => {
+                    this.innerHTML = '<i class="bi bi-save"></i>';
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-outline-secondary');
+                    // Reload to show/hide "Open Chat" link
+                    window.location.reload();
+                }, 1000);
+            } else {
+                alert('Failed to save link');
+            }
+        } catch (error) {
+            console.error('Error saving link:', error);
+            alert('Failed to save link');
+        }
+    });
+});
+</script>
 {% endblock %}

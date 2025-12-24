@@ -287,3 +287,124 @@ function initDragAndDrop() {
         }
     }
 }
+
+/**
+ * Copy AI prompt to clipboard
+ */
+async function copyToClipboard(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        return true;
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        // Fallback method
+        const textArea = document.createElement('textarea');
+        textArea.value = text;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            return true;
+        } catch (err) {
+            document.body.removeChild(textArea);
+            return false;
+        }
+    }
+}
+
+/**
+ * Generate gift brainstorming prompt for a person
+ */
+function generateGiftPrompt(personData) {
+    const parts = [
+        `I'm looking for gift ideas for ${personData.name}, who is my ${personData.type.toLowerCase()}.`,
+        ''
+    ];
+
+    // Add context section
+    const contextParts = [];
+    if (personData.notes) {
+        contextParts.push(`- Notes about them: ${personData.notes}`);
+    }
+    if (personData.pastGifts && personData.pastGifts.length > 0) {
+        contextParts.push(`- Past gifts I've given:\n  ${personData.pastGifts.map(g => `${g.year}: ${g.gift}`).join('\n  ')}`);
+    }
+    if (personData.cardPreference) {
+        contextParts.push(`- They prefer ${personData.cardPreference} cards (shows their style)`);
+    }
+    if (personData.giftIdeas && personData.giftIdeas.length > 0) {
+        contextParts.push(`- Ideas I've already considered: ${personData.giftIdeas.join(', ')}`);
+    }
+
+    if (contextParts.length > 0) {
+        parts.push('Context:');
+        parts.push(...contextParts);
+        parts.push('');
+    }
+
+    parts.push('Can you suggest 5-10 thoughtful gift ideas ranging from $25 to $150? Please provide a variety of options from practical to sentimental.');
+
+    return parts.join('\n');
+}
+
+/**
+ * Generate card writing prompt for a person
+ */
+function generateCardPrompt(personData) {
+    const parts = [
+        `I'm writing a handwritten holiday card to ${personData.name}, who is my ${personData.type.toLowerCase()}.`,
+        ''
+    ];
+
+    if (personData.notes) {
+        parts.push(`Context: ${personData.notes}`);
+        parts.push('');
+    }
+
+    parts.push('Can you suggest 2-3 approaches for what to write? I\'d like options ranging from brief and warm to more personal. Keep in mind this will be handwritten, so it shouldn\'t be too long (3-5 sentences).');
+
+    return parts.join('\n');
+}
+
+/**
+ * Generate e-card message prompt
+ */
+function generateEcardPrompt(stats) {
+    const parts = [
+        `I'm writing a holiday e-card to send to ${stats.totalRecipients || 'colleagues and professional contacts'}.`,
+        ''
+    ];
+
+    if (stats.breakdown) {
+        parts.push('Breakdown:');
+        parts.push(stats.breakdown);
+        parts.push('');
+    }
+
+    parts.push('Help me write a warm, professional holiday message that:');
+    parts.push('- Expresses gratitude for the year');
+    parts.push('- Wishes them well for the holidays');
+    parts.push('- Keeps it brief (2-3 sentences)');
+    parts.push('- Strikes the right tone for professional relationships');
+
+    return parts.join('\n');
+}
+
+/**
+ * Show copy success feedback
+ */
+function showCopyFeedback(button) {
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i> Copied!';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-primary');
+
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-primary');
+    }, 2000);
+}
