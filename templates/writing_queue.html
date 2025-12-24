@@ -49,6 +49,8 @@
                                 <strong>{{ item.person.name }}</strong>
                                 {% if item.person.email %}
                                     <br><small class="text-muted">{{ item.person.email }}</small>
+                                {% elif item.person.phone %}
+                                    <br><small class="text-muted">{{ item.person.phone }}</small>
                                 {% endif %}
                                 {% if item.person.notes %}
                                     <br><small class="text-muted">{{ item.person.notes }}</small>

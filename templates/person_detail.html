@@ -28,8 +28,11 @@
             </div>
             <div class="card-body">
                 <dl class="row mb-0">
-                    <dt class="col-sm-4">Email/Phone:</dt>
+                    <dt class="col-sm-4">Email:</dt>
                     <dd class="col-sm-8">{{ person.email or '-' }}</dd>
+
+                    <dt class="col-sm-4">Phone:</dt>
+                    <dd class="col-sm-8">{{ person.phone or '-' }}</dd>
 
                     <dt class="col-sm-4">Type:</dt>
                     <dd class="col-sm-8">

@@ -26,7 +26,8 @@ CARD_PREFERENCES = [
 class PersonForm(FlaskForm):
     """Form for adding/editing a person."""
     name = StringField('Name', validators=[DataRequired()])
-    email = StringField('Email/Phone', validators=[Optional()])
+    email = StringField('Email', validators=[Optional(), Email()])
+    phone = StringField('Phone', validators=[Optional()])
     person_type = SelectField('Type', choices=PERSON_TYPES, default='Other')
     card_preference = SelectField('Card Preference', choices=CARD_PREFERENCES, default='E-card')
     gets_gift = BooleanField('Gets Gift')

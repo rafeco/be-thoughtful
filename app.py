@@ -118,6 +118,7 @@ def person_new():
         person = Person(
             name=form.name.data,
             email=form.email.data,
+            phone=form.phone.data,
             person_type=form.person_type.data,
             card_preference=form.card_preference.data,
             gets_gift=form.gets_gift.data,
@@ -176,6 +177,7 @@ def person_edit(id):
     if form.validate_on_submit():
         person.name = form.name.data
         person.email = form.email.data
+        person.phone = form.phone.data
         person.person_type = form.person_type.data
         person.card_preference = form.card_preference.data
         person.gets_gift = form.gets_gift.data
@@ -239,13 +241,29 @@ def import_csv():
 
         for row in csv_reader:
             name = row.get('Full Name', '').strip()
-            email = row.get('Email/Phone Number', '').strip()
+            contact_info = row.get('Email/Phone Number', '').strip()
 
             if not name:
                 continue
 
-            # Check for duplicate
-            existing = Person.query.filter_by(name=name, email=email, active=True).first()
+            # Detect if contact_info is email or phone
+            email = None
+            phone = None
+            if contact_info:
+                if '@' in contact_info:
+                    email = contact_info
+                else:
+                    phone = contact_info
+
+            # Check for duplicate (by name and either email or phone)
+            existing = None
+            if email:
+                existing = Person.query.filter_by(name=name, email=email, active=True).first()
+            elif phone:
+                existing = Person.query.filter_by(name=name, phone=phone, active=True).first()
+            else:
+                existing = Person.query.filter_by(name=name, active=True).first()
+
             if existing:
                 skipped_count += 1
                 continue
@@ -254,6 +272,7 @@ def import_csv():
             person = Person(
                 name=name,
                 email=email,
+                phone=phone,
                 person_type='Other',
                 card_preference='E-card',
                 gets_gift=False
