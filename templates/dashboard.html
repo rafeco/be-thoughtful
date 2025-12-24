@@ -39,7 +39,9 @@
     <div class="col-md-3">
         <div class="card text-center">
             <div class="card-body">
-                <h2 class="text-primary">{{ total_people }}</h2>
+                <a href="{{ url_for('people_list') }}" class="text-decoration-none">
+                    <h2 class="text-primary">{{ total_people }}</h2>
+                </a>
                 <p class="mb-0">Total People</p>
             </div>
         </div>
@@ -47,7 +49,9 @@
     <div class="col-md-3">
         <div class="card text-center">
             <div class="card-body">
-                <h2 class="text-success">{{ people_with_gifts }}</h2>
+                <a href="{{ url_for('people_list', gift='yes') }}" class="text-decoration-none">
+                    <h2 class="text-success">{{ people_with_gifts }}</h2>
+                </a>
                 <p class="mb-0">Getting Gifts</p>
             </div>
         </div>
@@ -55,7 +59,9 @@
     <div class="col-md-3">
         <div class="card text-center">
             <div class="card-body">
-                <h2 class="text-info">{{ handwritten_count }}</h2>
+                <a href="{{ url_for('people_list', card='Handwritten') }}" class="text-decoration-none">
+                    <h2 class="text-info">{{ handwritten_count }}</h2>
+                </a>
                 <p class="mb-0">Handwritten Cards</p>
             </div>
         </div>
@@ -63,7 +69,9 @@
     <div class="col-md-3">
         <div class="card text-center">
             <div class="card-body">
-                <h2 class="text-warning">{{ ecard_count }}</h2>
+                <a href="{{ url_for('people_list', card='E-card') }}" class="text-decoration-none">
+                    <h2 class="text-warning">{{ ecard_count }}</h2>
+                </a>
                 <p class="mb-0">E-cards</p>
             </div>
         </div>
