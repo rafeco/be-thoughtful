@@ -1,6 +1,6 @@
 # Technical Documentation for AI Assistants
 
-This document provides technical context about the Christmas Planning App for AI assistants (Claude, ChatGPT, etc.) to help with future development and maintenance.
+This document provides technical context about the Be Thoughtful for AI assistants (Claude, ChatGPT, etc.) to help with future development and maintenance.
 
 ## Architecture Overview
 

@@ -1,4 +1,4 @@
-// Christmas Planning App - JavaScript
+// Be Thoughtful - JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all event listeners

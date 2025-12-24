@@ -1,4 +1,4 @@
-# Christmas Planning App
+# Be Thoughtful
 
 A lightweight, local-first web application for managing Christmas gift-giving and card-sending across the annual cycle. Think "CRM for staying thoughtful" - tracks people, gift ideas, card preferences, and guides you through the September-December workflow with appropriate prompts and deadlines.
 
