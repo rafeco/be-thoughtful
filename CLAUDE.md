@@ -10,6 +10,32 @@ This document provides technical context about the Christmas Planning App for AI
 **Database**: SQLite (file-based at `instance/database.db`)
 **Templates**: Jinja2
 **Development**: Flask debug mode with auto-reload
+**Port**: 7234 (custom port to avoid conflicts)
+
+## Development Environment
+
+**Critical Requirements**:
+1. **Always run from within the virtual environment** (`source venv/bin/activate`)
+2. **Debug mode is enabled** - changes to code auto-reload, no server restart needed
+3. **Port 7234** - custom port to avoid conflicts with other services
+
+**Auto-reload behavior**:
+- Python files (`.py`) - auto-reloads on save
+- Templates (`.html`) - changes picked up immediately
+- Static files (`.js`, `.css`) - changes picked up immediately
+- No need to restart the server during development
+
+**Starting the server**:
+```bash
+# MUST be run from within activated venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
+python app.py
+# Server runs at http://localhost:7234
+```
+
+**Stopping the server**:
+- Press `Ctrl+C` in the terminal
+- Or use the /tasks command to kill the background process if running via Claude Code
 
 ## Core Concepts
 

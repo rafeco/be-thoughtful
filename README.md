@@ -48,9 +48,11 @@ A lightweight, local-first web application for managing Christmas gift-giving an
    ```
 
 5. **Open your browser**:
-   Navigate to `http://localhost:5000`
+   Navigate to `http://localhost:7234`
 
 That's it! The database will be created automatically on first run.
+
+**Note**: The app runs in Flask's development mode with auto-reload enabled. Any changes to Python files, templates, or static files will be picked up automatically without restarting the server. Always run the app from within the activated virtual environment.
 
 ## First-Time Setup
 
