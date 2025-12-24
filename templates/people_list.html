@@ -65,7 +65,8 @@
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Contact</th>
+                        <th>Email</th>
+                        <th>Phone</th>
                         <th>Type</th>
                         <th>Card</th>
                         <th>Gift</th>
@@ -80,15 +81,8 @@
                                 {{ person.name }}
                             </a>
                         </td>
-                        <td>
-                            {% if person.email %}
-                                {{ person.email }}
-                            {% elif person.phone %}
-                                {{ person.phone }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
+                        <td>{{ person.email or '-' }}</td>
+                        <td>{{ person.phone or '-' }}</td>
                         <td>
                             <span class="badge bg-secondary">{{ person.person_type }}</span>
                         </td>
