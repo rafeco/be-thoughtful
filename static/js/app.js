@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initMilestoneCheckboxes();
     initRolloverCheck();
     initModalDismiss();
+    initDragAndDrop();
 });
 
 /**
@@ -200,3 +201,89 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
+/**
+ * Initialize drag and drop for CSV import
+ */
+function initDragAndDrop() {
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('csv_file');
+    const fileNameDisplay = document.getElementById('fileName');
+    const submitBtn = document.getElementById('submitBtn');
+
+    if (!dropZone || !fileInput) return;
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+        document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop zone when item is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    // Handle click to browse
+    dropZone.addEventListener('click', function(e) {
+        if (e.target.tagName !== 'LABEL') {
+            fileInput.click();
+        }
+    });
+
+    // Handle file selection via input
+    fileInput.addEventListener('change', function() {
+        handleFiles(this.files);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    function highlight() {
+        dropZone.classList.add('drag-over');
+    }
+
+    function unhighlight() {
+        dropZone.classList.remove('drag-over');
+    }
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+
+    function handleFiles(files) {
+        if (files.length > 0) {
+            const file = files[0];
+
+            // Check if it's a CSV file
+            if (!file.name.endsWith('.csv')) {
+                alert('Please select a CSV file');
+                return;
+            }
+
+            // Update the file input
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+
+            // Display file name
+            fileNameDisplay.textContent = `Selected: ${file.name}`;
+
+            // Enable submit button
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
+        }
+    }
+}

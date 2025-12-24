@@ -25,21 +25,31 @@
                     You can edit these settings after import.
                 </div>
 
-                <form method="post" enctype="multipart/form-data">
+                <form method="post" enctype="multipart/form-data" id="csvImportForm">
                     {{ form.hidden_tag() }}
 
-                    <div class="mb-3">
-                        {{ form.csv_file.label(class="form-label") }}
-                        {{ form.csv_file(class="form-control" + (" is-invalid" if form.csv_file.errors else "")) }}
-                        {% if form.csv_file.errors %}
-                            <div class="invalid-feedback">
-                                {% for error in form.csv_file.errors %}{{ error }}{% endfor %}
-                            </div>
-                        {% endif %}
+                    <!-- Drag and Drop Zone -->
+                    <div id="dropZone" class="drop-zone mb-3">
+                        <div class="drop-zone-content">
+                            <i class="bi bi-cloud-upload fs-1 text-muted mb-3"></i>
+                            <p class="mb-2"><strong>Drag and drop your CSV file here</strong></p>
+                            <p class="text-muted mb-3">or</p>
+                            <label for="csv_file" class="btn btn-outline-primary">
+                                <i class="bi bi-folder2-open"></i> Browse Files
+                            </label>
+                            {{ form.csv_file(class="d-none", id="csv_file") }}
+                            <p class="text-muted mt-3 mb-0" id="fileName"></p>
+                        </div>
                     </div>
 
+                    {% if form.csv_file.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.csv_file.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+
                     <div class="d-flex justify-content-between">
-                        {{ form.submit(class="btn btn-primary") }}
+                        {{ form.submit(class="btn btn-primary", id="submitBtn", disabled=true) }}
                         <a href="{{ url_for('people_list') }}" class="btn btn-secondary">Cancel</a>
                     </div>
                 </form>
