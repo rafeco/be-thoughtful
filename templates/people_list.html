@@ -22,31 +22,31 @@
             <div class="col-md-4">
                 <label for="type" class="form-label">Filter by Type</label>
                 <select name="type" id="type" class="form-select">
-                    <option value="">All Types</option>
-                    <option value="Family">Family</option>
-                    <option value="Close Friend">Close Friend</option>
-                    <option value="Colleague - Direct Report">Colleague - Direct Report</option>
-                    <option value="Colleague - Peer">Colleague - Peer</option>
-                    <option value="Colleague - Other">Colleague - Other</option>
-                    <option value="Professional">Professional</option>
-                    <option value="Other">Other</option>
+                    <option value="" {% if not request.args.get('type') %}selected{% endif %}>All Types</option>
+                    <option value="Family" {% if request.args.get('type') == 'Family' %}selected{% endif %}>Family</option>
+                    <option value="Close Friend" {% if request.args.get('type') == 'Close Friend' %}selected{% endif %}>Close Friend</option>
+                    <option value="Colleague - Direct Report" {% if request.args.get('type') == 'Colleague - Direct Report' %}selected{% endif %}>Colleague - Direct Report</option>
+                    <option value="Colleague - Peer" {% if request.args.get('type') == 'Colleague - Peer' %}selected{% endif %}>Colleague - Peer</option>
+                    <option value="Colleague - Other" {% if request.args.get('type') == 'Colleague - Other' %}selected{% endif %}>Colleague - Other</option>
+                    <option value="Professional" {% if request.args.get('type') == 'Professional' %}selected{% endif %}>Professional</option>
+                    <option value="Other" {% if request.args.get('type') == 'Other' %}selected{% endif %}>Other</option>
                 </select>
             </div>
             <div class="col-md-4">
                 <label for="card" class="form-label">Filter by Card Preference</label>
                 <select name="card" id="card" class="form-select">
-                    <option value="">All Preferences</option>
-                    <option value="Handwritten">Handwritten</option>
-                    <option value="E-card">E-card</option>
-                    <option value="None">None</option>
+                    <option value="" {% if not request.args.get('card') %}selected{% endif %}>All Preferences</option>
+                    <option value="Handwritten" {% if request.args.get('card') == 'Handwritten' %}selected{% endif %}>Handwritten</option>
+                    <option value="E-card" {% if request.args.get('card') == 'E-card' %}selected{% endif %}>E-card</option>
+                    <option value="None" {% if request.args.get('card') == 'None' %}selected{% endif %}>None</option>
                 </select>
             </div>
             <div class="col-md-4">
                 <label for="gift" class="form-label">Filter by Gift Status</label>
                 <select name="gift" id="gift" class="form-select">
-                    <option value="">All</option>
-                    <option value="yes">Gets Gift</option>
-                    <option value="no">No Gift</option>
+                    <option value="" {% if not request.args.get('gift') %}selected{% endif %}>All</option>
+                    <option value="yes" {% if request.args.get('gift') == 'yes' %}selected{% endif %}>Gets Gift</option>
+                    <option value="no" {% if request.args.get('gift') == 'no' %}selected{% endif %}>No Gift</option>
                 </select>
             </div>
             <div class="col-12">
