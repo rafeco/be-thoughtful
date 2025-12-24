@@ -1,6 +1,33 @@
 from datetime import date
 from models import db, Milestone, AnnualSummary, Task, GiftIdea, Person
 
+# Subtasks for each milestone phase
+MILESTONE_SUBTASKS = {
+    'September': [
+        'Review previous year\'s gifts and cards',
+        'Brainstorm gift ideas for each person getting a gift',
+        'Finalize handwritten card list',
+        'Finalize e-card recipient list',
+    ],
+    'October': [
+        'Purchase all family gifts',
+        'Order physical cards from vendor',
+        'Confirm card quantities match list',
+    ],
+    'November': [
+        'Write all handwritten cards',
+        'Purchase all colleague gifts',
+        'Wrap family gifts',
+    ],
+    'December': [
+        'Draft and finalize e-card message',
+        'Send e-cards to all recipients',
+        'Distribute colleague gifts',
+        'Wrap remaining gifts',
+        'Deliver/mail all gifts and cards',
+    ],
+}
+
 
 def get_active_year():
     """Return the year we're currently planning for.
@@ -59,11 +86,16 @@ def seed_milestones_for_year(year):
         # Check if milestone already exists for this phase and year
         existing = Milestone.query.filter_by(phase=template['phase'], year=year).first()
         if not existing:
+            # Get subtasks from template
+            subtasks = MILESTONE_SUBTASKS.get(template['phase'], [])
+
             milestone = Milestone(
                 phase=template['phase'],
                 description=template['description'],
                 year=year,
-                completed=False
+                completed=False,
+                subtasks=subtasks,
+                completed_subtasks=[]
             )
             db.session.add(milestone)
 

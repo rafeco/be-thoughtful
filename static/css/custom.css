@@ -286,6 +286,41 @@ footer {
     }
 }
 
+/* Milestone headers */
+.milestone-header.clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.milestone-header.clickable:hover {
+    background-color: rgba(22, 91, 51, 0.05);
+    border-radius: 4px;
+}
+
+/* Milestone toggle buttons */
+.milestone-toggle {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(22, 91, 51, 0.1);
+    border-color: var(--christmas-green) !important;
+}
+
+.milestone-toggle:hover {
+    background-color: var(--christmas-green);
+    border-color: var(--christmas-dark-green) !important;
+    color: white;
+}
+
+.milestone-toggle i {
+    transition: transform 0.3s ease;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
 /* Loading state for checkboxes */
 .task-checkbox:disabled,
 .milestone-checkbox:disabled {

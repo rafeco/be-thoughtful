@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from datetime import date
 import csv
 import io
+import sys
+from sqlalchemy.orm.attributes import flag_modified
 from models import db, Person, GiftIdea, Task, Milestone, AnnualSummary
 from forms import PersonForm, GiftIdeaForm, ImportCSVForm, CompleteGiftForm
 from utils import (
@@ -49,6 +51,9 @@ def dashboard():
     # Get milestones for current year
     milestones = Milestone.query.filter_by(year=active_year).order_by(Milestone.phase).all()
 
+    # Get current phase milestone
+    current_milestone = Milestone.query.filter_by(year=active_year, phase=current_phase).first()
+
     # Calculate milestone completion
     completed_milestones = sum(1 for m in milestones if m.completed)
     milestone_progress = (completed_milestones / len(milestones) * 100) if milestones else 0
@@ -75,6 +80,7 @@ def dashboard():
     return render_template('dashboard.html',
                            active_year=active_year,
                            current_phase=current_phase,
+                           current_milestone=current_milestone,
                            total_people=total_people,
                            people_with_gifts=people_with_gifts,
                            handwritten_count=handwritten_count,
@@ -404,6 +410,51 @@ def milestone_update_link(id):
     return jsonify({
         'success': True,
         'ai_chat_link': milestone.ai_chat_link
+    })
+
+
+@app.route('/milestones/<int:id>/toggle-subtask', methods=['POST'])
+def milestone_toggle_subtask(id):
+    """Toggle a subtask completion for a milestone."""
+    milestone = Milestone.query.get_or_404(id)
+    data = request.get_json()
+    subtask_index = data.get('subtask_index')
+
+    if subtask_index is None:
+        return jsonify({'success': False, 'error': 'Missing subtask_index'}), 400
+
+    # Initialize completed_subtasks if None
+    if milestone.completed_subtasks is None:
+        milestone.completed_subtasks = []
+
+    # Toggle the subtask
+    if subtask_index in milestone.completed_subtasks:
+        milestone.completed_subtasks.remove(subtask_index)
+    else:
+        milestone.completed_subtasks.append(subtask_index)
+
+    # Mark the field as modified so SQLAlchemy detects the change
+    flag_modified(milestone, 'completed_subtasks')
+
+    # Check if all subtasks are complete
+    total_subtasks = len(milestone.subtasks) if milestone.subtasks else 0
+    all_complete = len(milestone.completed_subtasks) == total_subtasks and total_subtasks > 0
+
+    # Auto-complete milestone if all subtasks done
+    if all_complete and not milestone.completed:
+        milestone.completed = True
+        milestone.completed_date = date.today()
+    elif not all_complete and milestone.completed:
+        # Uncomplete if user unchecks a subtask
+        milestone.completed = False
+        milestone.completed_date = None
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'completed_subtasks': milestone.completed_subtasks,
+        'milestone_completed': milestone.completed
     })
 
 

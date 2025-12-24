@@ -39,20 +39,46 @@
                     {% for milestone in milestones %}
                     <div class="list-group-item {% if milestone.completed %}list-group-item-success{% endif %}">
                         <div class="d-flex justify-content-between align-items-start">
-                            <div class="form-check">
-                                <input class="form-check-input milestone-checkbox"
-                                       type="checkbox"
-                                       data-milestone-id="{{ milestone.id }}"
-                                       {% if milestone.completed %}checked{% endif %}>
-                                <label class="form-check-label">
-                                    <h5 class="mb-1">{{ milestone.phase }}</h5>
-                                    <p class="mb-1">{{ milestone.description }}</p>
-                                    {% if milestone.completed and milestone.completed_date %}
-                                        <small class="text-success">
-                                            <i class="bi bi-check-circle"></i> Completed on {{ milestone.completed_date }}
-                                        </small>
-                                    {% endif %}
-                                </label>
+                            <div class="w-100">
+                                <div class="form-check">
+                                    <input class="form-check-input milestone-checkbox"
+                                           type="checkbox"
+                                           data-milestone-id="{{ milestone.id }}"
+                                           {% if milestone.completed %}checked{% endif %}
+                                           disabled>
+                                    <label class="form-check-label">
+                                        <h5 class="mb-1">{{ milestone.phase }}</h5>
+                                        <p class="mb-1">{{ milestone.description }}</p>
+                                        {% if milestone.completed and milestone.completed_date %}
+                                            <small class="text-success">
+                                                <i class="bi bi-check-circle"></i> Completed on {{ milestone.completed_date }}
+                                            </small>
+                                        {% endif %}
+                                    </label>
+                                </div>
+
+                                <!-- Subtasks -->
+                                {% if milestone.subtasks %}
+                                <div class="ms-4 mt-3">
+                                    <h6 class="text-muted small">Tasks:</h6>
+                                    <ul class="list-unstyled mb-0">
+                                        {% for subtask in milestone.subtasks %}
+                                        <li class="mb-2">
+                                            <div class="form-check">
+                                                <input class="form-check-input subtask-checkbox"
+                                                       type="checkbox"
+                                                       data-milestone-id="{{ milestone.id }}"
+                                                       data-subtask-index="{{ loop.index0 }}"
+                                                       {% if milestone.completed_subtasks and loop.index0 in milestone.completed_subtasks %}checked{% endif %}>
+                                                <label class="form-check-label">
+                                                    {{ subtask }}
+                                                </label>
+                                            </div>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -104,6 +130,50 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Subtask checkbox toggling
+    const subtaskCheckboxes = document.querySelectorAll('.subtask-checkbox');
+    subtaskCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', async function() {
+            const milestoneId = this.dataset.milestoneId;
+            const subtaskIndex = parseInt(this.dataset.subtaskIndex);
+
+            try {
+                const response = await fetch(`/milestones/${milestoneId}/toggle-subtask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ subtask_index: subtaskIndex })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Update milestone checkbox if auto-completed
+                    const milestoneCheckbox = document.querySelector(`.milestone-checkbox[data-milestone-id="${milestoneId}"]`);
+                    if (milestoneCheckbox) {
+                        milestoneCheckbox.checked = data.milestone_completed;
+                    }
+
+                    // Update list item styling
+                    const listItem = this.closest('.list-group-item');
+                    if (data.milestone_completed) {
+                        listItem.classList.add('list-group-item-success');
+                    } else {
+                        listItem.classList.remove('list-group-item-success');
+                    }
+                } else {
+                    alert('Failed to update subtask');
+                    this.checked = !this.checked; // Revert
+                }
+            } catch (error) {
+                console.error('Error updating subtask:', error);
+                alert('Failed to update subtask');
+                this.checked = !this.checked; // Revert
+            }
+        });
+    });
+
     // Copy E-card Prompt button
     const copyEcardBtn = document.getElementById('copyEcardPrompt');
     if (copyEcardBtn) {

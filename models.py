@@ -67,6 +67,8 @@ class Milestone(db.Model):
     completed_date = db.Column(db.Date)
     year = db.Column(db.Integer, nullable=False)
     ai_chat_link = db.Column(db.String(500))
+    subtasks = db.Column(db.JSON, default=list)  # List of subtask descriptions for this year
+    completed_subtasks = db.Column(db.JSON, default=list)  # List of completed subtask indices
 
     __table_args__ = (db.UniqueConstraint('phase', 'year', name='unique_phase_year'),)
 

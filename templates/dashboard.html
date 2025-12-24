@@ -18,16 +18,37 @@
                 <h5 class="mb-0">Current Phase: {{ current_phase }}</h5>
             </div>
             <div class="card-body">
-                {% if current_phase == 'September' %}
-                    <p>Brainstorm gifts and draft your card list. Start capturing gift ideas!</p>
-                {% elif current_phase == 'October' %}
-                    <p>Purchase gifts for family members and order physical cards.</p>
-                {% elif current_phase == 'November' %}
-                    <p>Write handwritten cards and buy colleague gifts.</p>
-                {% elif current_phase == 'December' %}
-                    <p>Distribute colleague gifts, send e-cards, and wrap everything!</p>
+                {% if current_milestone and current_milestone.subtasks %}
+                    <p class="mb-3">{{ current_milestone.description }}</p>
+                    <h6 class="mb-2">Tasks for this month:</h6>
+                    <ul class="list-unstyled">
+                        {% for subtask in current_milestone.subtasks %}
+                        <li class="mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input subtask-checkbox"
+                                       type="checkbox"
+                                       data-milestone-id="{{ current_milestone.id }}"
+                                       data-subtask-index="{{ loop.index0 }}"
+                                       {% if current_milestone.completed_subtasks and loop.index0 in current_milestone.completed_subtasks %}checked{% endif %}>
+                                <label class="form-check-label">
+                                    {{ subtask }}
+                                </label>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 {% else %}
-                    <p>Plan ahead for the upcoming holiday season.</p>
+                    {% if current_phase == 'September' %}
+                        <p>Brainstorm gifts and draft your card list. Start capturing gift ideas!</p>
+                    {% elif current_phase == 'October' %}
+                        <p>Purchase gifts for family members and order physical cards.</p>
+                    {% elif current_phase == 'November' %}
+                        <p>Write handwritten cards and buy colleague gifts.</p>
+                    {% elif current_phase == 'December' %}
+                        <p>Distribute colleague gifts, send e-cards, and wrap everything!</p>
+                    {% else %}
+                        <p>Plan ahead for the upcoming holiday season.</p>
+                    {% endif %}
                 {% endif %}
             </div>
         </div>
@@ -134,19 +155,46 @@
             <div class="card-body">
                 <div class="list-group">
                     {% for milestone in milestones %}
-                    <div class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="form-check">
-                            <input class="form-check-input milestone-checkbox"
-                                   type="checkbox"
-                                   data-milestone-id="{{ milestone.id }}"
-                                   {% if milestone.completed %}checked{% endif %}>
-                            <label class="form-check-label">
+                    <div class="list-group-item {% if milestone.completed %}list-group-item-success{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center milestone-header {% if milestone.subtasks %}clickable{% endif %}"
+                             {% if milestone.subtasks %}data-bs-toggle="collapse" data-bs-target="#milestone-{{ milestone.id }}-tasks"{% endif %}>
+                            <div class="flex-grow-1">
+                                <i class="bi {% if milestone.completed %}bi-check-circle-fill text-success{% else %}bi-circle text-muted{% endif %} milestone-icon me-2"
+                                   data-milestone-id="{{ milestone.id }}"></i>
                                 <strong>{{ milestone.phase }}</strong>: {{ milestone.description }}
                                 {% if milestone.completed and milestone.completed_date %}
-                                    <br><small class="text-success">Completed {{ milestone.completed_date }}</small>
+                                    <br><small class="text-success ms-4">Completed {{ milestone.completed_date }}</small>
                                 {% endif %}
-                            </label>
+                            </div>
+                            {% if milestone.subtasks %}
+                            <button class="btn btn-sm btn-outline-secondary milestone-toggle" type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#milestone-{{ milestone.id }}-tasks"
+                                    aria-expanded="false"
+                                    onclick="event.stopPropagation()">
+                                <i class="bi bi-chevron-down"></i>
+                            </button>
+                            {% endif %}
                         </div>
+
+                        <!-- Collapsible Subtasks (Read-only) -->
+                        {% if milestone.subtasks %}
+                        <div class="collapse mt-3" id="milestone-{{ milestone.id }}-tasks">
+                            <div class="ms-4">
+                                <h6 class="text-muted small">Tasks:</h6>
+                                <ul class="list-unstyled mb-0">
+                                    {% for subtask in milestone.subtasks %}
+                                    <li class="mb-2">
+                                        <i class="bi {% if milestone.completed_subtasks and loop.index0 in milestone.completed_subtasks %}bi-check-circle-fill text-success{% else %}bi-circle text-muted{% endif %} subtask-icon me-2"
+                                           data-milestone-id="{{ milestone.id }}"
+                                           data-subtask-index="{{ loop.index0 }}"></i>
+                                        <span class="text-muted">{{ subtask }}</span>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -179,4 +227,93 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Subtask checkbox toggling on dashboard (Current Phase section only)
+    const subtaskCheckboxes = document.querySelectorAll('.subtask-checkbox');
+    subtaskCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', async function() {
+            const milestoneId = this.dataset.milestoneId;
+            const subtaskIndex = parseInt(this.dataset.subtaskIndex);
+
+            try {
+                const response = await fetch(`/milestones/${milestoneId}/toggle-subtask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ subtask_index: subtaskIndex })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // Update milestone icon if auto-completed
+                    const milestoneIcon = document.querySelector(`.milestone-icon[data-milestone-id="${milestoneId}"]`);
+                    if (milestoneIcon) {
+                        if (data.milestone_completed) {
+                            milestoneIcon.classList.remove('bi-circle', 'text-muted');
+                            milestoneIcon.classList.add('bi-check-circle-fill', 'text-success');
+                        } else {
+                            milestoneIcon.classList.remove('bi-check-circle-fill', 'text-success');
+                            milestoneIcon.classList.add('bi-circle', 'text-muted');
+                        }
+                    }
+
+                    // Update corresponding subtask icon in Milestones section below
+                    const subtaskIcon = document.querySelector(`.subtask-icon[data-milestone-id="${milestoneId}"][data-subtask-index="${subtaskIndex}"]`);
+                    if (subtaskIcon) {
+                        if (this.checked) {
+                            subtaskIcon.classList.remove('bi-circle', 'text-muted');
+                            subtaskIcon.classList.add('bi-check-circle-fill', 'text-success');
+                        } else {
+                            subtaskIcon.classList.remove('bi-check-circle-fill', 'text-success');
+                            subtaskIcon.classList.add('bi-circle', 'text-muted');
+                        }
+                    }
+
+                    // Update list item styling (only in the milestones section)
+                    const listItem = document.querySelector(`.milestone-icon[data-milestone-id="${milestoneId}"]`)?.closest('.list-group-item');
+                    if (listItem) {
+                        if (data.milestone_completed) {
+                            listItem.classList.add('list-group-item-success');
+                        } else {
+                            listItem.classList.remove('list-group-item-success');
+                        }
+                    }
+                } else {
+                    alert('Failed to update subtask');
+                    this.checked = !this.checked; // Revert
+                }
+            } catch (error) {
+                console.error('Error updating subtask:', error);
+                alert('Failed to update subtask');
+                this.checked = !this.checked; // Revert
+            }
+        });
+    });
+
+    // Rotate chevron on collapse toggle
+    const milestoneHeaders = document.querySelectorAll('.milestone-header.clickable');
+    milestoneHeaders.forEach(header => {
+        const targetId = header.dataset.bsTarget;
+        const target = document.querySelector(targetId);
+        const chevronButton = header.querySelector('.milestone-toggle');
+
+        if (target && chevronButton) {
+            target.addEventListener('show.bs.collapse', function() {
+                chevronButton.querySelector('i').classList.remove('bi-chevron-down');
+                chevronButton.querySelector('i').classList.add('bi-chevron-up');
+            });
+            target.addEventListener('hide.bs.collapse', function() {
+                chevronButton.querySelector('i').classList.remove('bi-chevron-up');
+                chevronButton.querySelector('i').classList.add('bi-chevron-down');
+            });
+        }
+    });
+});
+</script>
 {% endblock %}
