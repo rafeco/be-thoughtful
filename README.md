@@ -4,14 +4,15 @@ A lightweight, local-first web application for managing Christmas gift-giving an
 
 ## Features
 
-- **People Management** - Track family, friends, colleagues, and professional contacts
+- **People Management** - Track family, friends, colleagues, and professional contacts with separate email and phone fields
 - **Gift Ideas** - Capture gift ideas year-round, not just in December
 - **Card Tracking** - Manage handwritten cards and e-cards
 - **Timeline View** - See what needs to happen in each phase (Sept-Dec)
 - **Task Management** - Simple checkboxes for milestones and per-person tasks
 - **Year Rollover** - Automatic archiving and planning for next year
 - **Archive View** - Historical record of previous years
-- **CSV Import** - Import contacts from Paperless Post
+- **CSV Import** - Import contacts from Paperless Post with drag & drop
+- **AI Assistant Integration** - Copy contextual prompts for Claude/ChatGPT to help brainstorm gifts and write cards
 
 ## Quick Start
 
@@ -118,6 +119,41 @@ Click **Archive** to browse previous years and see:
 - Who got cards
 - When milestones were completed
 - Overall stats for each year
+
+### Using the AI Assistant
+
+The app includes AI assistance features to help you brainstorm gifts and write thoughtful cards, without building complex chat UI or requiring API keys.
+
+**How it works**:
+1. Click a "Copy Prompt" button (on person pages or milestones)
+2. The app generates a contextual prompt with relevant information
+3. Open claude.ai (or ChatGPT) in a new tab
+4. Paste the prompt and chat with the AI
+5. Copy the chat URL from your browser
+6. Paste it back into the app's chat link field
+7. Now you can quickly return to that conversation anytime
+
+**Where to find it**:
+
+**Gift Brainstorming** (Person Detail Pages):
+- "Copy Gift Idea Prompt" - generates a prompt with person's details, your notes, past gifts, and existing ideas
+- Save the Claude chat link to track your brainstorming conversation
+
+**Card Writing Help** (Person Detail Pages):
+- "Copy Card Writing Prompt" - helps you write personalized handwritten card messages
+- Context includes relationship type and your notes about the person
+
+**E-card Message** (Milestones Page):
+- "Copy E-card Writing Prompt" - helps compose your main holiday e-card message
+- Guidance for professional, warm tone appropriate for colleagues and contacts
+- Save the chat link with the December milestone
+
+**Benefits**:
+- No API keys or AI costs required
+- Works with any AI tool (Claude, ChatGPT, etc.)
+- Contextual prompts save you from retyping information
+- Track conversations for each person
+- Simple, focused assistance when you need it
 
 ## File Structure
 
