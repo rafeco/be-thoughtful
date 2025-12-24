@@ -1,0 +1,14 @@
+{% macro render_progress_bar(current, total, label="", color="primary") %}
+<div class="mb-2">
+    {% if label %}
+    <h6>{{ label }}</h6>
+    {% endif %}
+    {% set progress = (current / total * 100) if total > 0 else 0 %}
+    <div class="progress">
+        <div class="progress-bar bg-{{ color }}" role="progressbar" style="width: {{ progress }}%">
+            {{ "%.0f"|format(progress) }}%
+        </div>
+    </div>
+    <small class="text-muted">{{ current }} of {{ total }}</small>
+</div>
+{% endmacro %}

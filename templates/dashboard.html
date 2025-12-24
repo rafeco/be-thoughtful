@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Christmas Planning{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Dashboard</h1>
+        <p class="lead">Planning for Christmas {{ active_year }}</p>
+    </div>
+</div>
+
+<!-- Current Phase -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Current Phase: {{ current_phase }}</h5>
+            </div>
+            <div class="card-body">
+                {% if current_phase == 'September' %}
+                    <p>Brainstorm gifts and draft your card list. Start capturing gift ideas!</p>
+                {% elif current_phase == 'October' %}
+                    <p>Purchase gifts for family members and order physical cards.</p>
+                {% elif current_phase == 'November' %}
+                    <p>Write handwritten cards and buy colleague gifts.</p>
+                {% elif current_phase == 'December' %}
+                    <p>Distribute colleague gifts, send e-cards, and wrap everything!</p>
+                {% else %}
+                    <p>Plan ahead for the upcoming holiday season.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-primary">{{ total_people }}</h2>
+                <p class="mb-0">Total People</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-success">{{ people_with_gifts }}</h2>
+                <p class="mb-0">Getting Gifts</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-info">{{ handwritten_count }}</h2>
+                <p class="mb-0">Handwritten Cards</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-warning">{{ ecard_count }}</h2>
+                <p class="mb-0">E-cards</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Row -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6>Milestone Progress</h6>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: {{ milestone_progress }}%">
+                        {{ "%.0f"|format(milestone_progress) }}%
+                    </div>
+                </div>
+                <small class="text-muted">{{ milestones|selectattr('completed')|list|length }} of {{ milestones|length }} completed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6>Gifts Purchased</h6>
+                <div class="progress">
+                    {% set gift_progress = (gift_tasks_completed / people_with_gifts * 100) if people_with_gifts > 0 else 0 %}
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ gift_progress }}%">
+                        {{ "%.0f"|format(gift_progress) }}%
+                    </div>
+                </div>
+                <small class="text-muted">{{ gift_tasks_completed }} of {{ people_with_gifts }} purchased</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h6>Cards Written</h6>
+                <div class="progress">
+                    {% set total_cards = handwritten_count + ecard_count %}
+                    {% set card_progress = (cards_written / total_cards * 100) if total_cards > 0 else 0 %}
+                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ card_progress }}%">
+                        {{ "%.0f"|format(card_progress) }}%
+                    </div>
+                </div>
+                <small class="text-muted">{{ cards_written }} of {{ total_cards }} completed</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Milestones -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Milestones for {{ active_year }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    {% for milestone in milestones %}
+                    <div class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="form-check">
+                            <input class="form-check-input milestone-checkbox"
+                                   type="checkbox"
+                                   data-milestone-id="{{ milestone.id }}"
+                                   {% if milestone.completed %}checked{% endif %}>
+                            <label class="form-check-label">
+                                <strong>{{ milestone.phase }}</strong>: {{ milestone.description }}
+                                {% if milestone.completed and milestone.completed_date %}
+                                    <br><small class="text-success">Completed {{ milestone.completed_date }}</small>
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="{{ url_for('people_list') }}" class="btn btn-primary me-2">
+                    <i class="bi bi-people"></i> View All People
+                </a>
+                <a href="{{ url_for('shopping_list') }}" class="btn btn-success me-2">
+                    <i class="bi bi-bag"></i> Shopping List
+                </a>
+                <a href="{{ url_for('writing_queue') }}" class="btn btn-info me-2">
+                    <i class="bi bi-pen"></i> Writing Queue
+                </a>
+                <a href="{{ url_for('person_new') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-plus-circle"></i> Add Person
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Shopping List - Christmas Planning{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Shopping List</h1>
+        <p class="text-muted">{{ shopping_data|length }} people getting gifts for {{ active_year }}</p>
+    </div>
+</div>
+
+<!-- Shopping List -->
+<div class="row">
+    <div class="col-12">
+        {% if shopping_data %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Person</th>
+                        <th>Gift Ideas</th>
+                        <th>Purchased</th>
+                        <th>Given</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in shopping_data %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('person_detail', id=item.person.id) }}">
+                                {{ item.person.name }}
+                            </a>
+                            <br>
+                            <small class="text-muted">{{ item.person.person_type }}</small>
+                        </td>
+                        <td>
+                            {% if item.ideas %}
+                                <ul class="list-unstyled mb-0">
+                                    {% for idea in item.ideas[:3] %}
+                                    <li><small>{{ idea.idea }}</small></li>
+                                    {% endfor %}
+                                    {% if item.ideas|length > 3 %}
+                                    <li><small class="text-muted">+{{ item.ideas|length - 3 }} more</small></li>
+                                    {% endif %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">No ideas yet</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input task-checkbox"
+                                       type="checkbox"
+                                       data-person-id="{{ item.person.id }}"
+                                       data-task-type="gift_purchased"
+                                       {% if item.purchased %}checked{% endif %}>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input task-checkbox"
+                                       type="checkbox"
+                                       data-person-id="{{ item.person.id }}"
+                                       data-task-type="gift_given"
+                                       {% if item.given %}checked{% endif %}>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('person_detail', id=item.person.id) }}" class="btn btn-sm btn-outline-primary">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">
+                No one is marked as getting gifts yet.
+                <a href="{{ url_for('people_list') }}">Go to People</a> to mark who should receive gifts.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,517 @@
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from datetime import date
+import csv
+import io
+from models import db, Person, GiftIdea, Task, Milestone, AnnualSummary
+from forms import PersonForm, GiftIdeaForm, ImportCSVForm, CompleteGiftForm
+from utils import (
+    get_active_year, get_current_phase, check_and_perform_rollover,
+    initialize_database
+)
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
+
+# Initialize database on first run
+with app.app_context():
+    initialize_database()
+
+
+@app.route('/')
+def dashboard():
+    """Dashboard with timeline view and stats."""
+    # Check for year rollover
+    rollover_summary = check_and_perform_rollover()
+
+    active_year = get_active_year()
+    current_phase = get_current_phase()
+
+    # Get stats for current year
+    total_people = Person.query.filter_by(active=True).count()
+    people_with_gifts = Person.query.filter_by(active=True, gets_gift=True).count()
+
+    # Count handwritten cards needed
+    handwritten_count = Person.query.filter_by(
+        active=True,
+        card_preference='Handwritten'
+    ).count()
+
+    # Count e-cards needed
+    ecard_count = Person.query.filter_by(
+        active=True,
+        card_preference='E-card'
+    ).count()
+
+    # Get milestones for current year
+    milestones = Milestone.query.filter_by(year=active_year).order_by(Milestone.phase).all()
+
+    # Calculate milestone completion
+    completed_milestones = sum(1 for m in milestones if m.completed)
+    milestone_progress = (completed_milestones / len(milestones) * 100) if milestones else 0
+
+    # Get tasks for current year
+    gift_tasks_completed = Task.query.filter_by(
+        year=active_year,
+        task_type='gift_purchased',
+        completed=True
+    ).count()
+
+    cards_written = Task.query.filter_by(
+        year=active_year,
+        task_type='card_written',
+        completed=True
+    ).count()
+
+    gifts_given = Task.query.filter_by(
+        year=active_year,
+        task_type='gift_given',
+        completed=True
+    ).count()
+
+    return render_template('dashboard.html',
+                           active_year=active_year,
+                           current_phase=current_phase,
+                           total_people=total_people,
+                           people_with_gifts=people_with_gifts,
+                           handwritten_count=handwritten_count,
+                           ecard_count=ecard_count,
+                           milestones=milestones,
+                           milestone_progress=milestone_progress,
+                           gift_tasks_completed=gift_tasks_completed,
+                           cards_written=cards_written,
+                           gifts_given=gifts_given,
+                           rollover_summary=rollover_summary)
+
+
+@app.route('/people')
+def people_list():
+    """List all people with filtering."""
+    person_type = request.args.get('type', '')
+    card_pref = request.args.get('card', '')
+    gift_status = request.args.get('gift', '')
+
+    query = Person.query.filter_by(active=True)
+
+    if person_type:
+        query = query.filter_by(person_type=person_type)
+    if card_pref:
+        query = query.filter_by(card_preference=card_pref)
+    if gift_status:
+        gets_gift = gift_status == 'yes'
+        query = query.filter_by(gets_gift=gets_gift)
+
+    people = query.order_by(Person.name).all()
+
+    return render_template('people_list.html', people=people)
+
+
+@app.route('/people/new', methods=['GET', 'POST'])
+def person_new():
+    """Add a new person."""
+    form = PersonForm()
+
+    if form.validate_on_submit():
+        person = Person(
+            name=form.name.data,
+            email=form.email.data,
+            person_type=form.person_type.data,
+            card_preference=form.card_preference.data,
+            gets_gift=form.gets_gift.data,
+            notes=form.notes.data
+        )
+        db.session.add(person)
+        db.session.commit()
+
+        flash(f'Added {person.name}!', 'success')
+        return redirect(url_for('people_list'))
+
+    return render_template('person_form.html', form=form, title='Add Person')
+
+
+@app.route('/people/<int:id>')
+def person_detail(id):
+    """View person details with history."""
+    person = Person.query.get_or_404(id)
+    active_year = get_active_year()
+
+    # Get gift ideas (sorted by most recent first)
+    gift_ideas = GiftIdea.query.filter_by(person_id=id).order_by(
+        GiftIdea.added_date.desc()
+    ).all()
+
+    # Get tasks for this person across all years
+    tasks_by_year = {}
+    all_tasks = Task.query.filter_by(person_id=id).order_by(Task.year.desc()).all()
+
+    for task in all_tasks:
+        if task.year not in tasks_by_year:
+            tasks_by_year[task.year] = []
+        tasks_by_year[task.year].append(task)
+
+    # Get gift history (completed gift_given tasks with actual gifts)
+    gift_history = Task.query.filter_by(
+        person_id=id,
+        task_type='gift_given',
+        completed=True
+    ).order_by(Task.year.desc()).all()
+
+    return render_template('person_detail.html',
+                           person=person,
+                           gift_ideas=gift_ideas,
+                           tasks_by_year=tasks_by_year,
+                           gift_history=gift_history,
+                           active_year=active_year)
+
+
+@app.route('/people/<int:id>/edit', methods=['GET', 'POST'])
+def person_edit(id):
+    """Edit a person."""
+    person = Person.query.get_or_404(id)
+    form = PersonForm(obj=person)
+
+    if form.validate_on_submit():
+        person.name = form.name.data
+        person.email = form.email.data
+        person.person_type = form.person_type.data
+        person.card_preference = form.card_preference.data
+        person.gets_gift = form.gets_gift.data
+        person.notes = form.notes.data
+
+        db.session.commit()
+        flash(f'Updated {person.name}!', 'success')
+        return redirect(url_for('person_detail', id=person.id))
+
+    return render_template('person_form.html', form=form, title='Edit Person', person=person)
+
+
+@app.route('/people/<int:id>/delete', methods=['POST'])
+def person_delete(id):
+    """Delete a person (soft delete)."""
+    person = Person.query.get_or_404(id)
+    person.active = False
+    db.session.commit()
+
+    flash(f'Removed {person.name}.', 'info')
+    return redirect(url_for('people_list'))
+
+
+@app.route('/people/<int:id>/add-idea', methods=['POST'])
+def add_gift_idea(id):
+    """Add a gift idea for a person."""
+    person = Person.query.get_or_404(id)
+
+    idea_text = request.form.get('idea', '').strip()
+    notes = request.form.get('notes', '').strip()
+
+    if idea_text:
+        gift_idea = GiftIdea(
+            person_id=person.id,
+            idea=idea_text,
+            notes=notes
+        )
+        db.session.add(gift_idea)
+        db.session.commit()
+        flash('Gift idea added!', 'success')
+    else:
+        flash('Please enter a gift idea.', 'warning')
+
+    return redirect(url_for('person_detail', id=person.id))
+
+
+@app.route('/import', methods=['GET', 'POST'])
+def import_csv():
+    """Import people from CSV."""
+    form = ImportCSVForm()
+
+    if form.validate_on_submit():
+        csv_file = request.files['csv_file']
+
+        # Read CSV
+        stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
+        csv_reader = csv.DictReader(stream)
+
+        imported_count = 0
+        skipped_count = 0
+
+        for row in csv_reader:
+            name = row.get('Full Name', '').strip()
+            email = row.get('Email/Phone Number', '').strip()
+
+            if not name:
+                continue
+
+            # Check for duplicate
+            existing = Person.query.filter_by(name=name, email=email, active=True).first()
+            if existing:
+                skipped_count += 1
+                continue
+
+            # Create new person with defaults
+            person = Person(
+                name=name,
+                email=email,
+                person_type='Other',
+                card_preference='E-card',
+                gets_gift=False
+            )
+            db.session.add(person)
+            imported_count += 1
+
+        db.session.commit()
+
+        flash(f'Imported {imported_count} people. Skipped {skipped_count} duplicates.', 'success')
+        return redirect(url_for('people_list'))
+
+    return render_template('import.html', form=form)
+
+
+@app.route('/shopping-list')
+def shopping_list():
+    """View all people who get gifts and their ideas."""
+    active_year = get_active_year()
+
+    # Get all people who get gifts
+    people = Person.query.filter_by(active=True, gets_gift=True).order_by(Person.name).all()
+
+    # For each person, get their gift ideas and task status
+    shopping_data = []
+    for person in people:
+        # Get unused gift ideas
+        ideas = GiftIdea.query.filter_by(
+            person_id=person.id,
+            used_year=None
+        ).order_by(GiftIdea.added_date.desc()).all()
+
+        # Get task status for current year
+        purchased_task = Task.query.filter_by(
+            person_id=person.id,
+            year=active_year,
+            task_type='gift_purchased'
+        ).first()
+
+        given_task = Task.query.filter_by(
+            person_id=person.id,
+            year=active_year,
+            task_type='gift_given'
+        ).first()
+
+        shopping_data.append({
+            'person': person,
+            'ideas': ideas,
+            'purchased': purchased_task.completed if purchased_task else False,
+            'given': given_task.completed if given_task else False
+        })
+
+    return render_template('shopping_list.html',
+                           shopping_data=shopping_data,
+                           active_year=active_year)
+
+
+@app.route('/writing-queue')
+def writing_queue():
+    """View all people getting handwritten cards."""
+    active_year = get_active_year()
+
+    # Get all people with handwritten card preference
+    people = Person.query.filter_by(
+        active=True,
+        card_preference='Handwritten'
+    ).order_by(Person.name).all()
+
+    # For each person, get card writing status
+    writing_data = []
+    for person in people:
+        card_task = Task.query.filter_by(
+            person_id=person.id,
+            year=active_year,
+            task_type='card_written'
+        ).first()
+
+        writing_data.append({
+            'person': person,
+            'completed': card_task.completed if card_task else False,
+            'task_id': card_task.id if card_task else None
+        })
+
+    return render_template('writing_queue.html',
+                           writing_data=writing_data,
+                           active_year=active_year)
+
+
+@app.route('/milestones')
+def milestones():
+    """View and manage milestones."""
+    active_year = get_active_year()
+    milestones = Milestone.query.filter_by(year=active_year).order_by(Milestone.phase).all()
+
+    return render_template('milestones.html',
+                           milestones=milestones,
+                           active_year=active_year)
+
+
+@app.route('/milestones/<int:id>/toggle', methods=['POST'])
+def milestone_toggle(id):
+    """Toggle milestone completion."""
+    milestone = Milestone.query.get_or_404(id)
+
+    milestone.completed = not milestone.completed
+    milestone.completed_date = date.today() if milestone.completed else None
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'completed': milestone.completed
+    })
+
+
+@app.route('/archive')
+def archive_list():
+    """View list of archived years."""
+    summaries = AnnualSummary.query.order_by(AnnualSummary.year.desc()).all()
+
+    return render_template('archive_list.html', summaries=summaries)
+
+
+@app.route('/archive/<int:year>')
+def archive_detail(year):
+    """View details of a specific archived year."""
+    summary = AnnualSummary.query.filter_by(year=year).first_or_404()
+
+    # Get all tasks for this year
+    tasks = Task.query.filter_by(year=year).all()
+
+    # Get milestones for this year
+    milestones = Milestone.query.filter_by(year=year).order_by(Milestone.phase).all()
+
+    # Get people who received gifts
+    gift_recipients = []
+    gift_tasks = Task.query.filter_by(
+        year=year,
+        task_type='gift_given',
+        completed=True
+    ).all()
+
+    for task in gift_tasks:
+        if task.person:
+            gift_recipients.append({
+                'person': task.person,
+                'gift': task.actual_gift or 'No details recorded'
+            })
+
+    return render_template('archive_detail.html',
+                           summary=summary,
+                           milestones=milestones,
+                           gift_recipients=gift_recipients)
+
+
+@app.route('/tasks/create/<int:person_id>/<task_type>', methods=['POST'])
+def task_create(person_id, task_type):
+    """Create a task for a person in the current year."""
+    active_year = get_active_year()
+
+    # Check if task already exists
+    existing = Task.query.filter_by(
+        person_id=person_id,
+        year=active_year,
+        task_type=task_type
+    ).first()
+
+    if not existing:
+        task = Task(
+            person_id=person_id,
+            year=active_year,
+            task_type=task_type,
+            description=f'{task_type} for {active_year}'
+        )
+        db.session.add(task)
+        db.session.commit()
+
+        return jsonify({'success': True, 'task_id': task.id})
+
+    return jsonify({'success': True, 'task_id': existing.id})
+
+
+@app.route('/tasks/<int:id>/toggle', methods=['POST'])
+def task_toggle(id):
+    """Toggle task completion."""
+    task = Task.query.get_or_404(id)
+
+    task.completed = not task.completed
+    task.completed_date = date.today() if task.completed else None
+
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'completed': task.completed
+    })
+
+
+@app.route('/tasks/<int:id>/complete-gift', methods=['POST'])
+def complete_gift_task(id):
+    """Mark a gift as given with details."""
+    task = Task.query.get_or_404(id)
+
+    actual_gift = request.form.get('actual_gift', '').strip()
+
+    task.completed = True
+    task.completed_date = date.today()
+    task.actual_gift = actual_gift
+
+    db.session.commit()
+
+    flash('Gift marked as given!', 'success')
+    return redirect(request.referrer or url_for('dashboard'))
+
+
+@app.route('/api/quick-add-idea', methods=['POST'])
+def api_quick_add_idea():
+    """AJAX endpoint for quick gift idea entry."""
+    data = request.get_json()
+
+    person_id = data.get('person_id')
+    idea = data.get('idea', '').strip()
+    notes = data.get('notes', '').strip()
+
+    if not person_id or not idea:
+        return jsonify({'success': False, 'error': 'Missing required fields'}), 400
+
+    person = Person.query.get(person_id)
+    if not person:
+        return jsonify({'success': False, 'error': 'Person not found'}), 404
+
+    gift_idea = GiftIdea(
+        person_id=person_id,
+        idea=idea,
+        notes=notes
+    )
+    db.session.add(gift_idea)
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'idea_id': gift_idea.id
+    })
+
+
+@app.route('/api/rollover-check', methods=['GET'])
+def api_rollover_check():
+    """AJAX endpoint to check if rollover is needed."""
+    rollover_summary = check_and_perform_rollover()
+
+    if rollover_summary:
+        return jsonify({
+            'rollover_needed': True,
+            'summary': rollover_summary
+        })
+
+    return jsonify({'rollover_needed': False})
+
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}{{ summary.year }} Archive - Christmas Planning{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Christmas {{ summary.year }}</h1>
+        <p class="text-muted">
+            Archived on {{ summary.completed_date }}
+        </p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('archive_list') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Archive
+        </a>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-primary">{{ summary.total_people }}</h2>
+                <p class="mb-0">Total People</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-success">{{ summary.gifts_given }}</h2>
+                <p class="mb-0">Gifts Given</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-info">{{ summary.handwritten_cards }}</h2>
+                <p class="mb-0">Handwritten Cards</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h2 class="text-warning">{{ summary.ecards_sent }}</h2>
+                <p class="mb-0">E-cards Sent</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Milestones -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Milestones</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    {% for milestone in milestones %}
+                    <li class="mb-2">
+                        {% if milestone.completed %}
+                            <i class="bi bi-check-circle text-success"></i>
+                        {% else %}
+                            <i class="bi bi-circle text-muted"></i>
+                        {% endif %}
+                        <strong>{{ milestone.phase }}</strong>
+                        {% if milestone.completed_date %}
+                            <br><small class="text-muted ms-4">Completed {{ milestone.completed_date }}</small>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gifts Given -->
+{% if gift_recipients %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Gifts Given ({{ gift_recipients|length }})</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Person</th>
+                                <th>Gift</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for recipient in gift_recipients %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('person_detail', id=recipient.person.id) }}">
+                                        {{ recipient.person.name }}
+                                    </a>
+                                </td>
+                                <td>{{ recipient.gift }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

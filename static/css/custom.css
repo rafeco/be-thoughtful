@@ -1,0 +1,142 @@
+/* Christmas Planning App - Custom Styles */
+
+/* General */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: bold;
+}
+
+/* Cards */
+.card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+/* Tables */
+.table-hover tbody tr:hover {
+    cursor: pointer;
+}
+
+.table-success {
+    transition: background-color 0.5s ease;
+}
+
+/* Task checkboxes */
+.task-checkbox,
+.milestone-checkbox {
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+.task-checkbox:hover,
+.milestone-checkbox:hover {
+    transform: scale(1.3);
+}
+
+/* Progress bars */
+.progress {
+    height: 25px;
+}
+
+.progress-bar {
+    font-weight: 600;
+    line-height: 25px;
+}
+
+/* List groups */
+.list-group-item {
+    border-left: 4px solid transparent;
+    transition: border-left-color 0.3s ease;
+}
+
+.list-group-item:hover {
+    border-left-color: #0d6efd;
+}
+
+.list-group-item-success {
+    background-color: #d1e7dd;
+    border-left-color: #198754;
+}
+
+/* Badges */
+.badge {
+    font-weight: normal;
+    padding: 0.35em 0.65em;
+}
+
+/* Forms */
+input[autofocus] {
+    border-color: #0d6efd;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+/* Modals */
+.modal.show {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Utilities */
+.text-muted {
+    color: #6c757d !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.1rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+}
+
+/* Loading state for checkboxes */
+.task-checkbox:disabled,
+.milestone-checkbox:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Animation for completed items */
+@keyframes fadeInSuccess {
+    from {
+        background-color: transparent;
+    }
+    to {
+        background-color: #d1e7dd;
+    }
+}
+
+.fade-success {
+    animation: fadeInSuccess 0.5s ease;
+}

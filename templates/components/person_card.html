@@ -1,0 +1,22 @@
+{% macro render_person_card(person) %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">{{ person.name }}</h5>
+        <p class="card-text">
+            <span class="badge bg-secondary">{{ person.person_type }}</span>
+            {% if person.card_preference == 'Handwritten' %}
+                <span class="badge bg-info">Handwritten</span>
+            {% elif person.card_preference == 'E-card' %}
+                <span class="badge bg-primary">E-card</span>
+            {% endif %}
+            {% if person.gets_gift %}
+                <span class="badge bg-success">Gift</span>
+            {% endif %}
+        </p>
+        {% if person.email %}
+        <p class="card-text"><small class="text-muted">{{ person.email }}</small></p>
+        {% endif %}
+        <a href="{{ url_for('person_detail', id=person.id) }}" class="btn btn-sm btn-primary">View Details</a>
+    </div>
+</div>
+{% endmacro %}

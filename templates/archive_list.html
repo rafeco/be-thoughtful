@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Archive - Christmas Planning{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Archive</h1>
+        <p class="text-muted">Browse previous holiday seasons</p>
+    </div>
+</div>
+
+<!-- Archive List -->
+<div class="row">
+    <div class="col-12">
+        {% if summaries %}
+        <div class="list-group">
+            {% for summary in summaries %}
+            <a href="{{ url_for('archive_detail', year=summary.year) }}" class="list-group-item list-group-item-action">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-1">Christmas {{ summary.year }}</h5>
+                        <p class="mb-1">
+                            <span class="badge bg-success me-2">{{ summary.gifts_given }} gifts</span>
+                            <span class="badge bg-info me-2">{{ summary.handwritten_cards }} handwritten cards</span>
+                            <span class="badge bg-primary me-2">{{ summary.ecards_sent }} e-cards</span>
+                        </p>
+                        <small class="text-muted">
+                            {{ summary.total_people }} total people
+                            {% if summary.completed_date %}
+                                • Archived on {{ summary.completed_date }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    <i class="bi bi-chevron-right"></i>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">
+                No archived years yet. Your first archive will be created automatically after December 31st.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

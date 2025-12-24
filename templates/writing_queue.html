@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Writing Queue - Christmas Planning{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Writing Queue</h1>
+        <p class="text-muted">{{ writing_data|length }} handwritten cards for {{ active_year }}</p>
+    </div>
+</div>
+
+<!-- Progress -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6>Cards Written</h6>
+                {% set written_count = writing_data|selectattr('completed')|list|length %}
+                {% set total_count = writing_data|length %}
+                {% set progress = (written_count / total_count * 100) if total_count > 0 else 0 %}
+                <div class="progress">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ progress }}%">
+                        {{ "%.0f"|format(progress) }}%
+                    </div>
+                </div>
+                <small class="text-muted mt-2">{{ written_count }} of {{ total_count }} completed</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Writing Queue -->
+<div class="row">
+    <div class="col-12">
+        {% if writing_data %}
+        <div class="card">
+            <div class="card-body">
+                <div class="list-group">
+                    {% for item in writing_data %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="form-check">
+                            <input class="form-check-input task-checkbox"
+                                   type="checkbox"
+                                   data-person-id="{{ item.person.id }}"
+                                   data-task-type="card_written"
+                                   {% if item.completed %}checked{% endif %}>
+                            <label class="form-check-label">
+                                <strong>{{ item.person.name }}</strong>
+                                {% if item.person.email %}
+                                    <br><small class="text-muted">{{ item.person.email }}</small>
+                                {% endif %}
+                                {% if item.person.notes %}
+                                    <br><small class="text-muted">{{ item.person.notes }}</small>
+                                {% endif %}
+                            </label>
+                        </div>
+                        <a href="{{ url_for('person_detail', id=item.person.id) }}" class="btn btn-sm btn-outline-primary">
+                            View
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <p class="mb-0">
+                No one is marked for handwritten cards yet.
+                <a href="{{ url_for('people_list') }}">Go to People</a> to set card preferences.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

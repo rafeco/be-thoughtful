@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Import CSV - Christmas Planning{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Import from CSV</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Upload a CSV file from Paperless Post to import your contacts.
+                    The file should have "Full Name" and "Email/Phone Number" columns.
+                </p>
+
+                <div class="alert alert-info">
+                    <strong>Note:</strong> All imported people will default to:
+                    <ul class="mb-0 mt-2">
+                        <li>Card Preference: E-card</li>
+                        <li>Gets Gift: No</li>
+                        <li>Type: Other</li>
+                    </ul>
+                    You can edit these settings after import.
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.csv_file.label(class="form-label") }}
+                        {{ form.csv_file(class="form-control" + (" is-invalid" if form.csv_file.errors else "")) }}
+                        {% if form.csv_file.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.csv_file.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        {{ form.submit(class="btn btn-primary") }}
+                        <a href="{{ url_for('people_list') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sample CSV Format -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Sample CSV Format</h5>
+            </div>
+            <div class="card-body">
+                <pre class="mb-0"><code>Full Name,Email/Phone Number
+John Smith,john@example.com
+Jane Doe,+15551234567
+The Smiths,family@example.com</code></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

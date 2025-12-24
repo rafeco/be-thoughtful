@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Milestones - Christmas Planning{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Milestones for {{ active_year }}</h1>
+        <p class="text-muted">Track your progress through the holiday season</p>
+    </div>
+</div>
+
+<!-- Progress -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h6>Overall Progress</h6>
+                {% set completed_count = milestones|selectattr('completed')|list|length %}
+                {% set total_count = milestones|length %}
+                {% set progress = (completed_count / total_count * 100) if total_count > 0 else 0 %}
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: {{ progress }}%">
+                        {{ "%.0f"|format(progress) }}%
+                    </div>
+                </div>
+                <small class="text-muted mt-2">{{ completed_count }} of {{ total_count }} milestones completed</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Milestones List -->
+<div class="row">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-body">
+                <div class="list-group">
+                    {% for milestone in milestones %}
+                    <div class="list-group-item {% if milestone.completed %}list-group-item-success{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="form-check">
+                                <input class="form-check-input milestone-checkbox"
+                                       type="checkbox"
+                                       data-milestone-id="{{ milestone.id }}"
+                                       {% if milestone.completed %}checked{% endif %}>
+                                <label class="form-check-label">
+                                    <h5 class="mb-1">{{ milestone.phase }}</h5>
+                                    <p class="mb-1">{{ milestone.description }}</p>
+                                    {% if milestone.completed and milestone.completed_date %}
+                                        <small class="text-success">
+                                            <i class="bi bi-check-circle"></i> Completed on {{ milestone.completed_date }}
+                                        </small>
+                                    {% endif %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
