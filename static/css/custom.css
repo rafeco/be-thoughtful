@@ -96,6 +96,18 @@ main {
     border-color: var(--christmas-red);
 }
 
+.btn-info {
+    background: linear-gradient(135deg, var(--christmas-gold) 0%, #b8941f 100%);
+    border-color: #b8941f;
+    color: #333;
+}
+
+.btn-info:hover {
+    background: linear-gradient(135deg, #b8941f 0%, var(--christmas-gold) 100%);
+    border-color: var(--christmas-gold);
+    color: #333;
+}
+
 .btn-outline-primary {
     color: var(--christmas-green);
     border-color: var(--christmas-green);
@@ -104,6 +116,17 @@ main {
 .btn-outline-primary:hover {
     background-color: var(--christmas-green);
     border-color: var(--christmas-green);
+    color: white;
+}
+
+.btn-outline-secondary {
+    color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
     color: white;
 }
 
@@ -180,6 +203,23 @@ a:hover {
     padding: 0.35em 0.65em;
 }
 
+.badge.bg-primary {
+    background: linear-gradient(135deg, var(--christmas-green) 0%, var(--christmas-dark-green) 100%) !important;
+}
+
+.badge.bg-info {
+    background: linear-gradient(135deg, var(--christmas-gold) 0%, #b8941f 100%) !important;
+    color: #333 !important;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, var(--christmas-red) 0%, var(--christmas-dark-red) 100%) !important;
+}
+
+.badge.bg-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%) !important;
+}
+
 /* Forms */
 input[autofocus] {
     border-color: var(--christmas-green);
@@ -189,6 +229,31 @@ input[autofocus] {
 .form-select:focus {
     border-color: var(--christmas-green);
     box-shadow: 0 0 0 0.25rem rgba(22, 91, 51, 0.15);
+}
+
+/* Alerts */
+.alert-success {
+    background: linear-gradient(135deg, var(--christmas-light-green) 0%, #e8f5e9 100%);
+    border-color: var(--christmas-green);
+    color: var(--christmas-dark-green);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #fff9e6 0%, #fffbf0 100%);
+    border-color: var(--christmas-gold);
+    color: #856404;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #fff8e1 100%);
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, var(--christmas-light-red) 0%, #fff5f5 100%);
+    border-color: var(--christmas-red);
+    color: var(--christmas-dark-red);
 }
 
 /* Modals */
