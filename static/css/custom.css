@@ -1,10 +1,22 @@
 /* Christmas Planning App - Custom Styles */
 
+/* Festive Color Scheme */
+:root {
+    --christmas-red: #c41e3a;
+    --christmas-green: #165b33;
+    --christmas-gold: #d4af37;
+    --christmas-light-red: #f8d7da;
+    --christmas-light-green: #d4edda;
+    --christmas-dark-red: #8b1428;
+    --christmas-dark-green: #0d3d22;
+}
+
 /* General */
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    background: linear-gradient(to bottom, #fafafa 0%, #f5f9f5 100%);
 }
 
 main {
@@ -12,24 +24,93 @@ main {
 }
 
 /* Navigation */
+.navbar {
+    background: linear-gradient(135deg, var(--christmas-red) 0%, var(--christmas-dark-red) 100%) !important;
+}
+
 .navbar-brand {
     font-weight: bold;
+    color: var(--christmas-gold) !important;
+}
+
+.navbar-brand:hover {
+    color: white !important;
+}
+
+.nav-link {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--christmas-gold) !important;
 }
 
 /* Cards */
 .card {
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     margin-bottom: 1.5rem;
+    border: 1px solid rgba(22, 91, 51, 0.1);
 }
 
 .card-header {
     font-weight: 600;
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, var(--christmas-light-green) 0%, #e8f5e9 100%);
+    border-bottom: 2px solid var(--christmas-green);
+    color: var(--christmas-dark-green);
+}
+
+.card-header.bg-primary {
+    background: linear-gradient(135deg, var(--christmas-green) 0%, var(--christmas-dark-green) 100%) !important;
+    color: white !important;
+    border-bottom-color: var(--christmas-dark-green);
+}
+
+.card-header.bg-light {
+    background: linear-gradient(135deg, var(--christmas-light-red) 0%, #fff5f5 100%) !important;
+    border-bottom: 2px solid var(--christmas-red);
+    color: var(--christmas-dark-red);
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, var(--christmas-green) 0%, var(--christmas-dark-green) 100%);
+    border-color: var(--christmas-dark-green);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--christmas-dark-green) 0%, var(--christmas-green) 100%);
+    border-color: var(--christmas-green);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(22, 91, 51, 0.3);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--christmas-red) 0%, var(--christmas-dark-red) 100%);
+    border-color: var(--christmas-dark-red);
+}
+
+.btn-success:hover {
+    background: linear-gradient(135deg, var(--christmas-dark-red) 0%, var(--christmas-red) 100%);
+    border-color: var(--christmas-red);
+}
+
+.btn-outline-primary {
+    color: var(--christmas-green);
+    border-color: var(--christmas-green);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--christmas-green);
+    border-color: var(--christmas-green);
+    color: white;
 }
 
 /* Tables */
 .table-hover tbody tr:hover {
     cursor: pointer;
+    background-color: var(--christmas-light-green);
 }
 
 .table-success {
@@ -51,11 +132,22 @@ main {
 /* Progress bars */
 .progress {
     height: 25px;
+    background-color: var(--christmas-light-green);
+    border: 1px solid var(--christmas-green);
 }
 
 .progress-bar {
     font-weight: 600;
     line-height: 25px;
+    background: linear-gradient(135deg, var(--christmas-red) 0%, var(--christmas-dark-red) 100%);
+}
+
+.progress-bar.bg-success {
+    background: linear-gradient(135deg, var(--christmas-green) 0%, var(--christmas-dark-green) 100%) !important;
+}
+
+.progress-bar.bg-info {
+    background: linear-gradient(135deg, var(--christmas-gold) 0%, #b8941f 100%) !important;
 }
 
 /* List groups */
@@ -65,12 +157,21 @@ main {
 }
 
 .list-group-item:hover {
-    border-left-color: #0d6efd;
+    border-left-color: var(--christmas-red);
 }
 
 .list-group-item-success {
-    background-color: #d1e7dd;
-    border-left-color: #198754;
+    background-color: var(--christmas-light-green);
+    border-left-color: var(--christmas-green);
+}
+
+/* Links */
+a {
+    color: var(--christmas-green);
+}
+
+a:hover {
+    color: var(--christmas-red);
 }
 
 /* Badges */
@@ -81,13 +182,13 @@ main {
 
 /* Forms */
 input[autofocus] {
-    border-color: #0d6efd;
+    border-color: var(--christmas-green);
 }
 
 .form-control:focus,
 .form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    border-color: var(--christmas-green);
+    box-shadow: 0 0 0 0.25rem rgba(22, 91, 51, 0.15);
 }
 
 /* Modals */
@@ -133,12 +234,29 @@ footer {
         background-color: transparent;
     }
     to {
-        background-color: #d1e7dd;
+        background-color: var(--christmas-light-green);
     }
 }
 
 .fade-success {
     animation: fadeInSuccess 0.5s ease;
+}
+
+/* Dashboard Stats */
+.text-primary {
+    color: var(--christmas-green) !important;
+}
+
+.text-success {
+    color: var(--christmas-red) !important;
+}
+
+.text-info {
+    color: var(--christmas-gold) !important;
+}
+
+.text-warning {
+    color: var(--christmas-dark-red) !important;
 }
 
 /* Dashboard Stat Links */
@@ -157,23 +275,23 @@ footer {
 
 /* Drag and Drop Zone */
 .drop-zone {
-    border: 3px dashed #dee2e6;
+    border: 3px dashed var(--christmas-green);
     border-radius: 8px;
     padding: 3rem 2rem;
     text-align: center;
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, var(--christmas-light-green) 0%, #f0f8f0 100%);
     transition: all 0.3s ease;
     cursor: pointer;
 }
 
 .drop-zone:hover {
-    border-color: #0d6efd;
-    background-color: #e7f1ff;
+    border-color: var(--christmas-red);
+    background: linear-gradient(135deg, var(--christmas-light-red) 0%, #fff5f5 100%);
 }
 
 .drop-zone.drag-over {
-    border-color: #0d6efd;
-    background-color: #cfe2ff;
+    border-color: var(--christmas-gold);
+    background: linear-gradient(135deg, #fff9e6 0%, var(--christmas-light-green) 100%);
     border-style: solid;
     transform: scale(1.02);
 }
