@@ -25,9 +25,11 @@
                     <option value="" {% if not request.args.get('type') %}selected{% endif %}>All Types</option>
                     <option value="Family" {% if request.args.get('type') == 'Family' %}selected{% endif %}>Family</option>
                     <option value="Close Friend" {% if request.args.get('type') == 'Close Friend' %}selected{% endif %}>Close Friend</option>
+                    <option value="Neighbor" {% if request.args.get('type') == 'Neighbor' %}selected{% endif %}>Neighbor</option>
                     <option value="Colleague - Direct Report" {% if request.args.get('type') == 'Colleague - Direct Report' %}selected{% endif %}>Colleague - Direct Report</option>
                     <option value="Colleague - Peer" {% if request.args.get('type') == 'Colleague - Peer' %}selected{% endif %}>Colleague - Peer</option>
-                    <option value="Colleague - Other" {% if request.args.get('type') == 'Colleague - Other' %}selected{% endif %}>Colleague - Other</option>
+                    <option value="Colleague" {% if request.args.get('type') == 'Colleague' %}selected{% endif %}>Colleague</option>
+                    <option value="Former Colleague" {% if request.args.get('type') == 'Former Colleague' %}selected{% endif %}>Former Colleague</option>
                     <option value="Professional" {% if request.args.get('type') == 'Professional' %}selected{% endif %}>Professional</option>
                     <option value="Other" {% if request.args.get('type') == 'Other' %}selected{% endif %}>Other</option>
                 </select>

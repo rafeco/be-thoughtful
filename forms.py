@@ -8,9 +8,11 @@ from wtforms.validators import DataRequired, Optional, Email, NumberRange
 PERSON_TYPES = [
     ('Family', 'Family'),
     ('Close Friend', 'Close Friend'),
+    ('Neighbor', 'Neighbor'),
     ('Colleague - Direct Report', 'Colleague - Direct Report'),
     ('Colleague - Peer', 'Colleague - Peer'),
-    ('Colleague - Other', 'Colleague - Other'),
+    ('Colleague', 'Colleague'),
+    ('Former Colleague', 'Former Colleague'),
     ('Professional', 'Professional'),
     ('Other', 'Other'),
 ]
