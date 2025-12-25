@@ -215,6 +215,41 @@ For developers and technical documentation, see [TECHNICAL.md](TECHNICAL.md) whi
 5. **Track what you actually gave**: Fill in actual gifts to build history
 6. **Review the archive**: Look at previous years for inspiration
 
+## Backup and Restore
+
+### Creating a Backup
+
+To back up your database:
+
+```bash
+./backup.sh
+```
+
+This creates a timestamped backup in the `backups/` directory (e.g., `database_20251225_120000.db`).
+
+### Restoring from Backup
+
+To restore from a backup:
+
+```bash
+./restore.sh
+```
+
+This will:
+1. Show you all available backups with creation dates
+2. Let you select which backup to restore
+3. Create a safety backup before overwriting
+4. Restore the selected backup
+
+**Important**: Restart the Flask server after restoring to use the restored database.
+
+### When to Back Up
+
+- Before making bulk changes
+- Before testing new features during development
+- Before year rollover (automatic or manual)
+- Periodically as a safety measure
+
 ## Troubleshooting
 
 ### Database issues
@@ -239,7 +274,7 @@ For feature specifications, see [spec.md](spec.md).
 - Shopping links with gift ideas
 - Photo storage for inspiration
 - Search/autocomplete for person names
-- Export to CSV for backup
 - Year-over-year comparison views
+- Email reminders for upcoming milestones
 
 Enjoy being more thoughtful this holiday season!
