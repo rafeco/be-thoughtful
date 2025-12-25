@@ -4,9 +4,10 @@ A lightweight, local-first web application that turns Christmas gift-giving and 
 
 ## Features
 
-- **People Management** - Track family, friends, colleagues, and professional contacts with separate email and phone fields
+- **People Management** - Track family, friends, neighbors, colleagues, and professional contacts with custom card addressees and duplicate detection
 - **Gift Ideas** - Capture gift ideas year-round, not just in December
-- **Card Tracking** - Manage handwritten cards and e-cards
+- **Budget Tracking** - Set planned budgets per person and see total spending at a glance
+- **Card Tracking** - Manage handwritten cards and e-cards with custom addressees (e.g., "The Smith Family")
 - **Timeline View** - See what needs to happen in each phase (Sept-Dec)
 - **Milestone Subtasks** - Break down monthly milestones into trackable subtasks with automatic completion
 - **Task Management** - Simple checkboxes for milestones and per-person tasks
@@ -195,55 +196,15 @@ The app includes AI assistance features to help you brainstorm gifts and write t
 - Track conversations for each person
 - Simple, focused assistance when you need it
 
-## File Structure
+## Technical Details
 
-```
-be-thoughtful/
-├── app.py                 # Main Flask application
-├── models.py             # Database models
-├── forms.py              # Form definitions
-├── utils.py              # Year logic and helpers
-├── database.db           # SQLite database (created on first run)
-├── requirements.txt      # Python dependencies
-├── README.md             # This file
-├── spec.md               # Original specification
-├── static/
-│   ├── css/
-│   │   └── custom.css   # Custom styles
-│   └── js/
-│       └── app.js       # JavaScript interactivity
-└── templates/
-    ├── base.html         # Base layout
-    ├── dashboard.html    # Dashboard view
-    ├── people_list.html  # People list
-    ├── person_detail.html # Person detail
-    ├── person_form.html  # Add/edit person
-    ├── import.html       # CSV import
-    ├── shopping_list.html # Gift shopping view
-    ├── writing_queue.html # Card writing queue
-    ├── milestones.html   # Milestone tracking
-    ├── archive_list.html # Archive list
-    ├── archive_detail.html # Year archive
-    └── components/       # Reusable components
-        ├── person_card.html
-        ├── task_checkbox.html
-        └── progress_bar.html
-```
-
-## Technology Stack
-
-- **Backend**: Python Flask, SQLAlchemy, Flask-WTF
-- **Database**: SQLite (local file-based)
-- **Frontend**: Bootstrap 5, vanilla JavaScript
-- **Templates**: Jinja2
-
-## Configuration
-
-The app uses sensible defaults for local development:
-
-- **Port**: 7234 (change in `app.py` if needed)
-- **Database**: `instance/database.db` (SQLite file in instance directory)
-- **Secret Key**: Set in `app.py` (change for production use)
+For developers and technical documentation, see [TECHNICAL.md](TECHNICAL.md) which includes:
+- File structure and architecture
+- Database schema
+- Technology stack
+- Configuration options
+- Implementation details
+- Development and deployment notes
 
 ## Tips for Success
 
@@ -257,34 +218,24 @@ The app uses sensible defaults for local development:
 ## Troubleshooting
 
 ### Database issues
-If you need to reset the database:
-1. Stop the Flask server (Ctrl+C)
-2. Delete `instance/database.db`
-3. Restart the app with `python app.py`
-4. A fresh database will be created automatically
+If you need to reset the database, delete `instance/database.db` and restart the server. A fresh database will be created automatically.
 
-### Import problems
-Make sure your CSV has columns named exactly:
-- `Full Name`
-- `Email/Phone Number`
+### CSV Import
+Your CSV must have columns named `Full Name` and `Email/Phone Number`. Other columns are ignored.
 
-Other columns will be ignored. Duplicate detection checks for matching name + email (or name + phone, or just name if neither is provided).
-
-### Year rollover not triggering
-The automatic rollover checks on first access after December 31st. Visit the dashboard to trigger it. Alternatively, use the manual archive button on the Archive page if you want to finish early.
-
-### Dashboard shows wrong year after archiving
-If you manually archive a year, refresh the page to see the updated active year. The app checks if the calculated year has been archived and automatically moves to the next year.
+### Year rollover
+Automatic rollover happens on first access after December 31st. For manual archiving before the year ends, use the Archive page.
 
 ## Support
 
-This is a local, single-user application with no cloud dependencies. All data is stored locally in `database.db`.
+This is a local, single-user application with no cloud dependencies. All data is stored locally in `instance/database.db`.
 
-For issues or questions, refer to `spec.md` for detailed feature documentation.
+For technical details and development documentation, see [TECHNICAL.md](TECHNICAL.md).
 
-## Future Enhancements (v2+)
+For feature specifications, see [spec.md](spec.md).
 
-- Budget tracking per person/category
+## Future Ideas
+
 - Shopping links with gift ideas
 - Photo storage for inspiration
 - Search/autocomplete for person names
