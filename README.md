@@ -8,10 +8,12 @@ A lightweight, local-first web application for managing Christmas gift-giving an
 - **Gift Ideas** - Capture gift ideas year-round, not just in December
 - **Card Tracking** - Manage handwritten cards and e-cards
 - **Timeline View** - See what needs to happen in each phase (Sept-Dec)
+- **Milestone Subtasks** - Break down monthly milestones into trackable subtasks with automatic completion
 - **Task Management** - Simple checkboxes for milestones and per-person tasks
-- **Year Rollover** - Automatic archiving and planning for next year
-- **Archive View** - Historical record of previous years
-- **CSV Import** - Import contacts from Paperless Post with drag & drop
+- **Year Rollover** - Automatic archiving and planning for next year (or manual if you finish early)
+- **Pre-planning Phase** - Get helpful suggestions during Jan-Aug before the planning cycle begins
+- **Archive View** - Historical record of previous years with detailed stats
+- **CSV Import** - Import contacts from Paperless Post with drag & drop and automatic deduplication
 - **AI Assistant Integration** - Copy contextual prompts for Claude/ChatGPT to help brainstorm gifts and write cards
 
 ## Quick Start
@@ -76,11 +78,37 @@ That's it! The database will be created automatically on first run.
 
 The app automatically determines your planning phase based on the date:
 
+- **Pre-planning (January-August)**: Get ready for the upcoming season
+  - Review and update your contact list
+  - Log gift ideas throughout the year
+  - Review last year's archive for insights
+  - Note budget changes or new traditions
+  - Keep track of interests people mention
+
 - **September**: Brainstorm gifts and draft card list
+  - Review previous year's gifts and cards
+  - Brainstorm gift ideas for each person
+  - Finalize handwritten card list
+  - Finalize e-card recipient list
+
 - **October**: Purchase gifts for family, order physical cards
+  - Purchase all family gifts
+  - Order physical cards from vendor
+  - Confirm card quantities match list
+
 - **November**: Write handwritten cards, buy colleague gifts
+  - Write all handwritten cards
+  - Purchase all colleague gifts
+  - Wrap family gifts
+
 - **December**: Distribute gifts, send e-cards, wrap everything
-- **January-August**: Planning for next year
+  - Draft and finalize e-card message
+  - Send e-cards to all recipients
+  - Distribute colleague gifts
+  - Wrap remaining gifts
+  - Deliver/mail all gifts and cards
+
+Each monthly milestone includes subtasks that you can check off as you complete them. When all subtasks are done, the milestone automatically marks itself complete!
 
 ### Adding Gift Ideas
 
@@ -105,13 +133,23 @@ Check off tasks as you complete them - they'll be saved to your history.
 
 ### Year Rollover
 
-On your first visit after December 31st, the app will:
+**Automatic Rollover**: On your first visit after December 31st, the app will automatically:
 
 1. Archive all completed tasks for the old year
 2. Create an annual summary
 3. Set up fresh milestones for the new year
 4. Preserve all people and gift ideas
 5. Show you a summary of what you accomplished
+
+**Manual Archiving**: If you finish everything early and want to start planning for next year:
+
+1. Navigate to the **Archive** page
+2. Scroll to the bottom to find the "Manual Archive" section
+3. Click "Archive [YEAR] and Move to [NEXT YEAR]"
+4. Confirm the action (this cannot be undone!)
+5. The app will immediately switch to planning for the next year
+
+Once a year is archived (manually or automatically), the app will show the next year as the active planning year. For example, if you manually archive 2025 in December, the app will show "Planning for Christmas 2026" and enter pre-planning phase.
 
 ### Viewing History
 
@@ -203,8 +241,8 @@ be-thoughtful/
 
 The app uses sensible defaults for local development:
 
-- **Port**: 5000 (change in `app.py` if needed)
-- **Database**: `database.db` (SQLite file in project directory)
+- **Port**: 7234 (change in `app.py` if needed)
+- **Database**: `instance/database.db` (SQLite file in instance directory)
 - **Secret Key**: Set in `app.py` (change for production use)
 
 ## Tips for Success
@@ -219,17 +257,24 @@ The app uses sensible defaults for local development:
 ## Troubleshooting
 
 ### Database issues
-If you need to reset the database, simply delete `database.db` and restart the app. A fresh database will be created.
+If you need to reset the database:
+1. Stop the Flask server (Ctrl+C)
+2. Delete `instance/database.db`
+3. Restart the app with `python app.py`
+4. A fresh database will be created automatically
 
 ### Import problems
 Make sure your CSV has columns named exactly:
 - `Full Name`
 - `Email/Phone Number`
 
-Other columns will be ignored.
+Other columns will be ignored. Duplicate detection checks for matching name + email (or name + phone, or just name if neither is provided).
 
 ### Year rollover not triggering
-The rollover checks on first access after December 31st. Visit the dashboard to trigger it.
+The automatic rollover checks on first access after December 31st. Visit the dashboard to trigger it. Alternatively, use the manual archive button on the Archive page if you want to finish early.
+
+### Dashboard shows wrong year after archiving
+If you manually archive a year, refresh the page to see the updated active year. The app checks if the calculated year has been archived and automatically moves to the next year.
 
 ## Support
 
