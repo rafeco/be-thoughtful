@@ -18,7 +18,17 @@
                 <h5 class="mb-0">Current Phase: {{ current_phase }}</h5>
             </div>
             <div class="card-body">
-                {% if current_milestone and current_milestone.subtasks %}
+                {% if current_phase == 'Pre-planning' %}
+                    <p class="mb-3">Get ready for Christmas {{ active_year }}! The planning cycle starts in September.</p>
+                    <h6 class="mb-2">Pre-planning suggestions:</h6>
+                    <ul class="mb-0">
+                        <li class="mb-2">Review and update your contact list - add new people, mark anyone who moved or changed roles</li>
+                        <li class="mb-2">Log gift ideas as you think of them throughout the year</li>
+                        <li class="mb-2">Review last year's archive to see what worked well and what to improve</li>
+                        <li class="mb-2">Note any budget changes or new family traditions</li>
+                        <li class="mb-2">Keep track of interests and preferences people mention</li>
+                    </ul>
+                {% elif current_milestone and current_milestone.subtasks %}
                     <p class="mb-3">{{ current_milestone.description }}</p>
                     <h6 class="mb-2">Tasks for this month:</h6>
                     <ul class="list-unstyled">
@@ -46,8 +56,6 @@
                         <p>Write handwritten cards and buy colleague gifts.</p>
                     {% elif current_phase == 'December' %}
                         <p>Distribute colleague gifts, send e-cards, and wrap everything!</p>
-                    {% else %}
-                        <p>Plan ahead for the upcoming holiday season.</p>
                     {% endif %}
                 {% endif %}
             </div>
@@ -100,6 +108,7 @@
 </div>
 
 <!-- Progress Row -->
+{% if current_phase != 'Pre-planning' %}
 <div class="row mb-4">
     <div class="col-md-4">
         <div class="card">
@@ -144,6 +153,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Milestones -->
 <div class="row mb-4">
@@ -153,6 +163,11 @@
                 <h5 class="mb-0">Milestones for {{ active_year }}</h5>
             </div>
             <div class="card-body">
+                {% if current_phase == 'Pre-planning' %}
+                <div class="alert alert-info mb-3">
+                    <i class="bi bi-info-circle"></i> These milestones will become active when September arrives. Use this time to prepare!
+                </div>
+                {% endif %}
                 <div class="list-group">
                     {% for milestone in milestones %}
                     <div class="list-group-item {% if milestone.completed %}list-group-item-success{% endif %}">

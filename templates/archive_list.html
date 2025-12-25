@@ -46,4 +46,51 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Manual Archive Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Manual Archive</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    If you're done with {{ active_year }} and want to move to {{ active_year + 1 }}, you can manually archive the current year.
+                    This will create an annual summary and set up milestones for next year.
+                </p>
+                <p class="text-danger mb-3">
+                    <i class="bi bi-exclamation-triangle"></i> <strong>Warning:</strong> This action cannot be undone!
+                </p>
+                <button type="button" class="btn btn-danger" id="archiveYearBtn">
+                    <i class="bi bi-archive"></i> Archive {{ active_year }} and Move to {{ active_year + 1 }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Archive year button with confirmation
+    const archiveYearBtn = document.getElementById('archiveYearBtn');
+    if (archiveYearBtn) {
+        archiveYearBtn.addEventListener('click', function() {
+            const year = {{ active_year }};
+            const confirmMsg = `Are you sure you want to archive ${year}?\n\nThis will:\n- Create an annual summary for ${year}\n- Mark used gift ideas\n- Create milestones for ${year + 1}\n\nThis action cannot be undone!`;
+
+            if (confirm(confirmMsg)) {
+                // Create a form and submit it
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ url_for("archive_year") }}';
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

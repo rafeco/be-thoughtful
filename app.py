@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from datetime import date
 import csv
 import io
@@ -8,7 +8,7 @@ from models import db, Person, GiftIdea, Task, Milestone, AnnualSummary
 from forms import PersonForm, GiftIdeaForm, ImportCSVForm, CompleteGiftForm
 from utils import (
     get_active_year, get_current_phase, check_and_perform_rollover,
-    initialize_database
+    perform_rollover, initialize_database
 )
 
 app = Flask(__name__)
@@ -26,8 +26,8 @@ with app.app_context():
 @app.route('/')
 def dashboard():
     """Dashboard with timeline view and stats."""
-    # Check for year rollover
-    rollover_summary = check_and_perform_rollover()
+    # Check for year rollover (automatic or from manual archive)
+    rollover_summary = session.pop('rollover_summary', None) or check_and_perform_rollover()
 
     active_year = get_active_year()
     current_phase = get_current_phase()
@@ -458,12 +458,37 @@ def milestone_toggle_subtask(id):
     })
 
 
+@app.route('/archive-year', methods=['POST'])
+def archive_year():
+    """Manually archive the current year and roll over to the next."""
+    active_year = get_active_year()
+
+    # Check if this year is already archived
+    existing_summary = AnnualSummary.query.filter_by(year=active_year).first()
+    if existing_summary:
+        flash(f'{active_year} has already been archived!', 'warning')
+        return redirect(url_for('dashboard'))
+
+    # Perform the rollover
+    next_year = active_year + 1
+    rollover_summary = perform_rollover(active_year, next_year)
+
+    # Store rollover summary in session to display the modal
+    session['rollover_summary'] = rollover_summary
+
+    flash(f'Successfully archived {active_year} and created milestones for {next_year}!', 'success')
+
+    # Redirect to dashboard which will show the rollover modal
+    return redirect(url_for('dashboard'))
+
+
 @app.route('/archive')
 def archive_list():
     """View list of archived years."""
     summaries = AnnualSummary.query.order_by(AnnualSummary.year.desc()).all()
+    active_year = get_active_year()
 
-    return render_template('archive_list.html', summaries=summaries)
+    return render_template('archive_list.html', summaries=summaries, active_year=active_year)
 
 
 @app.route('/archive/<int:year>')
