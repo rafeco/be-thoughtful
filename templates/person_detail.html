@@ -50,6 +50,11 @@
                         {% endif %}
                     </dd>
 
+                    {% if person.card_addressee %}
+                    <dt class="col-sm-4">Card Addressee:</dt>
+                    <dd class="col-sm-8">{{ person.card_addressee }}</dd>
+                    {% endif %}
+
                     <dt class="col-sm-4">Gets Gift:</dt>
                     <dd class="col-sm-8">
                         {% if person.gets_gift %}

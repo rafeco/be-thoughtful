@@ -73,6 +73,17 @@
                     </div>
 
                     <div class="mb-3">
+                        {{ form.card_addressee.label(class="form-label") }}
+                        {{ form.card_addressee(class="form-control" + (" is-invalid" if form.card_addressee.errors else ""), placeholder="e.g., The Smith Family") }}
+                        <small class="form-text text-muted">How to address this person on cards (leave blank to use their name)</small>
+                        {% if form.card_addressee.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.card_addressee.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
                         {{ form.notes.label(class="form-label") }}
                         {{ form.notes(class="form-control", rows=3) }}
                         <small class="form-text text-muted">Any context you want to remember (e.g., "mentor", "helped with X project")</small>

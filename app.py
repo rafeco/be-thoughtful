@@ -166,6 +166,7 @@ def person_new():
             card_preference=form.card_preference.data,
             gets_gift=form.gets_gift.data,
             budget=form.budget.data,
+            card_addressee=form.card_addressee.data,
             notes=form.notes.data,
             ai_chat_link=form.ai_chat_link.data
         )
@@ -227,6 +228,7 @@ def person_edit(id):
         person.card_preference = form.card_preference.data
         person.gets_gift = form.gets_gift.data
         person.budget = form.budget.data
+        person.card_addressee = form.card_addressee.data
         person.notes = form.notes.data
         person.ai_chat_link = form.ai_chat_link.data
 

@@ -14,6 +14,7 @@ class Person(db.Model):
     card_preference = db.Column(db.String(20), default='E-card')
     gets_gift = db.Column(db.Boolean, default=False)
     budget = db.Column(db.Integer)  # Budget for gift in dollars
+    card_addressee = db.Column(db.String(200))  # Custom addressee for cards (e.g., "The Smith Family")
     notes = db.Column(db.Text)
     ai_chat_link = db.Column(db.String(500))
     active = db.Column(db.Boolean, default=True)
