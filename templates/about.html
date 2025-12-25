@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}About - Be Thoughtful{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-lg-8 mx-auto">
+        <div class="text-center mb-5">
+            <!-- Placeholder for Be Thoughtful image -->
+            <div class="mb-4">
+                <img src="{{ url_for('static', filename='images/be-thoughtful.png') }}"
+                     alt="Be Thoughtful"
+                     class="img-fluid"
+                     style="max-width: 400px;"
+                     onerror="this.style.display='none'">
+            </div>
+            <h1 class="display-4 mb-3">Be Thoughtful</h1>
+            <p class="lead text-muted">A CRM to make the holidays a year-round project</p>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">About This App</h5>
+                <p>
+                    Be Thoughtful is a lightweight, local-first web application that turns Christmas gift-giving
+                    and card-sending into a year-round project. Think of it as a "CRM for staying thoughtful" -
+                    it tracks people, captures gift ideas throughout the year, manages card preferences, and guides
+                    you through the September-December workflow with appropriate prompts and deadlines.
+                </p>
+                <p>
+                    No cloud services, no subscriptions, no complexity. Just a simple tool to help you capture
+                    ideas in January, plan in the summer, and execute smoothly when the season arrives.
+                </p>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Key Features</h5>
+                <ul>
+                    <li><strong>People Management</strong> - Track family, friends, colleagues, and contacts</li>
+                    <li><strong>Gift Ideas</strong> - Capture ideas year-round, not just in December</li>
+                    <li><strong>Card Tracking</strong> - Manage handwritten cards and e-cards</li>
+                    <li><strong>Timeline View</strong> - Monthly guidance from September through December</li>
+                    <li><strong>Milestone Subtasks</strong> - Break down each month into trackable tasks</li>
+                    <li><strong>Year Rollover</strong> - Automatic archiving and planning for next year</li>
+                    <li><strong>Pre-planning Phase</strong> - Helpful suggestions during January-August</li>
+                    <li><strong>AI Assistant Integration</strong> - Copy prompts for Claude/ChatGPT to help brainstorm</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Technology</h5>
+                <p class="mb-2">Built with:</p>
+                <ul class="mb-3">
+                    <li>Python Flask for the backend</li>
+                    <li>SQLite for local data storage</li>
+                    <li>Bootstrap 5 for the UI</li>
+                    <li>Festive Christmas color scheme</li>
+                </ul>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-github"></i>
+                    Open source project -
+                    <a href="https://github.com/rafeco/be-thoughtful" target="_blank" class="text-decoration-none">
+                        View on GitHub
+                    </a>
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Philosophy</h5>
+                <p class="mb-0">
+                    The best gift-giving comes from thoughtfulness, not last-minute panic. This app helps you
+                    capture ideas throughout the year, plan ahead, and execute smoothly when the season arrives.
+                    By spreading the work across several months and keeping a record of what worked (and what didn't),
+                    you can make each year better than the last.
+                </p>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-house"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -627,5 +627,11 @@ def api_rollover_check():
     return jsonify({'rollover_needed': False})
 
 
+@app.route('/about')
+def about():
+    """About page."""
+    return render_template('about.html')
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=7234)

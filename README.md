@@ -1,6 +1,6 @@
 # Be Thoughtful
 
-A lightweight, local-first web application for managing Christmas gift-giving and card-sending across the annual cycle. Think "CRM for staying thoughtful" - tracks people, gift ideas, card preferences, and guides you through the September-December workflow with appropriate prompts and deadlines.
+A lightweight, local-first web application that turns Christmas gift-giving and card-sending into a year-round project. Think "CRM for staying thoughtful" - capture gift ideas in January, plan in the summer, and execute smoothly when September arrives. Tracks people, gift ideas, card preferences, and guides you through each phase with appropriate prompts and deadlines.
 
 ## Features
 
