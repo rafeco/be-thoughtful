@@ -70,6 +70,7 @@
                         <th>Type</th>
                         <th>Card</th>
                         <th>Gift</th>
+                        <th>Budget</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -103,6 +104,13 @@
                             {% endif %}
                         </td>
                         <td>
+                            {% if person.gets_gift and person.budget %}
+                                <span class="text-success">${{ person.budget }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
                             <a href="{{ url_for('person_detail', id=person.id) }}" class="btn btn-sm btn-outline-primary">
                                 View
                             </a>
@@ -113,7 +121,7 @@
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted">
+                        <td colspan="8" class="text-center text-muted">
                             No people found. <a href="{{ url_for('person_new') }}">Add your first person</a> or <a href="{{ url_for('import_csv') }}">import from CSV</a>.
                         </td>
                     </tr>

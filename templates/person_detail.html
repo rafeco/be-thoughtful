@@ -59,6 +59,13 @@
                         {% endif %}
                     </dd>
 
+                    {% if person.gets_gift and person.budget %}
+                    <dt class="col-sm-4">Budget:</dt>
+                    <dd class="col-sm-8">
+                        <span class="text-success">${{ person.budget }}</span>
+                    </dd>
+                    {% endif %}
+
                     {% if person.notes %}
                     <dt class="col-sm-4">Notes:</dt>
                     <dd class="col-sm-8">{{ person.notes }}</dd>

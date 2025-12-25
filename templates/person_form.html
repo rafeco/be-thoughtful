@@ -59,6 +59,20 @@
                     </div>
 
                     <div class="mb-3">
+                        {{ form.budget.label(class="form-label") }}
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            {{ form.budget(class="form-control" + (" is-invalid" if form.budget.errors else ""), placeholder="0") }}
+                        </div>
+                        <small class="form-text text-muted">Planned budget for this person's gift (whole dollars only)</small>
+                        {% if form.budget.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.budget.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
                         {{ form.notes.label(class="form-label") }}
                         {{ form.notes(class="form-control", rows=3) }}
                         <small class="form-text text-muted">Any context you want to remember (e.g., "mentor", "helped with X project")</small>

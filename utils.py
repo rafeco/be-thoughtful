@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from models import db, Milestone, AnnualSummary, Task, GiftIdea, Person
 
 # Subtasks for each milestone phase
@@ -69,6 +69,25 @@ def get_current_phase():
         return 'December'
     else:
         return 'Pre-planning'
+
+
+def days_until_christmas(active_year):
+    """Calculate the number of days until Christmas of the active year.
+
+    Returns a dict with:
+    - days: number of days until Christmas
+    - christmas_date: the date of Christmas we're counting down to
+    """
+    today = date.today()
+    christmas = date(active_year, 12, 25)
+
+    delta = christmas - today
+    days = delta.days
+
+    return {
+        'days': days,
+        'christmas_date': christmas
+    }
 
 
 def seed_milestones_for_year(year):

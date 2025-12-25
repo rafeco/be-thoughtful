@@ -8,12 +8,16 @@ from models import db, Person, GiftIdea, Task, Milestone, AnnualSummary
 from forms import PersonForm, GiftIdeaForm, ImportCSVForm, CompleteGiftForm
 from utils import (
     get_active_year, get_current_phase, check_and_perform_rollover,
-    perform_rollover, initialize_database
+    perform_rollover, initialize_database, days_until_christmas
 )
+
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here-change-in-production'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+# Use absolute path to database
+db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance', 'database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -48,6 +52,13 @@ def dashboard():
         card_preference='E-card'
     ).count()
 
+    # Calculate total budget
+    total_budget = db.session.query(db.func.sum(Person.budget)).filter(
+        Person.active == True,
+        Person.gets_gift == True,
+        Person.budget.isnot(None)
+    ).scalar() or 0
+
     # Get milestones for current year
     milestones = Milestone.query.filter_by(year=active_year).order_by(Milestone.phase).all()
 
@@ -77,6 +88,9 @@ def dashboard():
         completed=True
     ).count()
 
+    # Calculate days until Christmas
+    countdown = days_until_christmas(active_year)
+
     return render_template('dashboard.html',
                            active_year=active_year,
                            current_phase=current_phase,
@@ -85,11 +99,13 @@ def dashboard():
                            people_with_gifts=people_with_gifts,
                            handwritten_count=handwritten_count,
                            ecard_count=ecard_count,
+                           total_budget=total_budget,
                            milestones=milestones,
                            milestone_progress=milestone_progress,
                            gift_tasks_completed=gift_tasks_completed,
                            cards_written=cards_written,
                            gifts_given=gifts_given,
+                           countdown=countdown,
                            rollover_summary=rollover_summary)
 
 
@@ -121,6 +137,27 @@ def person_new():
     form = PersonForm()
 
     if form.validate_on_submit():
+        # Check for duplicates
+        duplicates = []
+
+        # Check name
+        if Person.query.filter_by(active=True, name=form.name.data).first():
+            duplicates.append(f'name "{form.name.data}"')
+
+        # Check email if provided
+        if form.email.data and form.email.data.strip():
+            if Person.query.filter_by(active=True, email=form.email.data).first():
+                duplicates.append(f'email "{form.email.data}"')
+
+        # Check phone if provided
+        if form.phone.data and form.phone.data.strip():
+            if Person.query.filter_by(active=True, phone=form.phone.data).first():
+                duplicates.append(f'phone "{form.phone.data}"')
+
+        if duplicates:
+            flash(f'Warning: A person with the same {", ".join(duplicates)} already exists!', 'warning')
+            return render_template('person_form.html', form=form, title='Add Person')
+
         person = Person(
             name=form.name.data,
             email=form.email.data,
@@ -128,6 +165,7 @@ def person_new():
             person_type=form.person_type.data,
             card_preference=form.card_preference.data,
             gets_gift=form.gets_gift.data,
+            budget=form.budget.data,
             notes=form.notes.data,
             ai_chat_link=form.ai_chat_link.data
         )
@@ -188,6 +226,7 @@ def person_edit(id):
         person.person_type = form.person_type.data
         person.card_preference = form.card_preference.data
         person.gets_gift = form.gets_gift.data
+        person.budget = form.budget.data
         person.notes = form.notes.data
         person.ai_chat_link = form.ai_chat_link.data
 

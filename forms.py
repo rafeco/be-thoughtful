@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
-from wtforms import StringField, TextAreaField, SelectField, BooleanField, SubmitField, HiddenField
-from wtforms.validators import DataRequired, Optional, Email
+from wtforms import StringField, TextAreaField, SelectField, BooleanField, SubmitField, HiddenField, IntegerField
+from wtforms.validators import DataRequired, Optional, Email, NumberRange
 
 
 # Person type choices
@@ -31,6 +31,7 @@ class PersonForm(FlaskForm):
     person_type = SelectField('Type', choices=PERSON_TYPES, default='Other')
     card_preference = SelectField('Card Preference', choices=CARD_PREFERENCES, default='E-card')
     gets_gift = BooleanField('Gets Gift')
+    budget = IntegerField('Gift Budget ($)', validators=[Optional(), NumberRange(min=0)])
     notes = TextAreaField('Notes', validators=[Optional()])
     ai_chat_link = StringField('AI Chat Link', validators=[Optional()])
     submit = SubmitField('Save')

@@ -13,6 +13,7 @@ class Person(db.Model):
     person_type = db.Column(db.String(50), default='Other')
     card_preference = db.Column(db.String(20), default='E-card')
     gets_gift = db.Column(db.Boolean, default=False)
+    budget = db.Column(db.Integer)  # Budget for gift in dollars
     notes = db.Column(db.Text)
     ai_chat_link = db.Column(db.String(500))
     active = db.Column(db.Boolean, default=True)

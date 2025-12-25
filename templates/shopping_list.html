@@ -19,6 +19,7 @@
                 <thead>
                     <tr>
                         <th>Person</th>
+                        <th>Budget</th>
                         <th>Gift Ideas</th>
                         <th>Purchased</th>
                         <th>Given</th>
@@ -34,6 +35,13 @@
                             </a>
                             <br>
                             <small class="text-muted">{{ item.person.person_type }}</small>
+                        </td>
+                        <td>
+                            {% if item.person.budget %}
+                                <span class="text-success">${{ item.person.budget }}</span>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
                         </td>
                         <td>
                             {% if item.ideas %}
