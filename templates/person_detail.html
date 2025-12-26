@@ -32,7 +32,7 @@
                     <dd class="col-sm-8">{{ person.email or '-' }}</dd>
 
                     <dt class="col-sm-4">Phone:</dt>
-                    <dd class="col-sm-8">{{ person.phone or '-' }}</dd>
+                    <dd class="col-sm-8">{{ person.phone|format_phone or '-' }}</dd>
 
                     <dt class="col-sm-4">Type:</dt>
                     <dd class="col-sm-8">

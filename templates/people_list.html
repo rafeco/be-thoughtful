@@ -85,7 +85,7 @@
                             </a>
                         </td>
                         <td>{{ person.email or '-' }}</td>
-                        <td>{{ person.phone or '-' }}</td>
+                        <td>{{ person.phone|format_phone or '-' }}</td>
                         <td>
                             <span class="badge bg-secondary">{{ person.person_type }}</span>
                         </td>

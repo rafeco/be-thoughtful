@@ -1,5 +1,47 @@
 from datetime import date, datetime
+import re
 from models import db, Milestone, AnnualSummary, Task, GiftIdea, Person
+
+
+def normalize_phone(phone):
+    """
+    Normalize phone number to 10 digits.
+    Accepts various formats: (123) 456-7890, 123-456-7890, 1234567890, +1 123 456 7890
+    Returns 10-digit string or empty string if invalid.
+    """
+    if not phone:
+        return ''
+
+    # Strip all non-digit characters
+    digits = re.sub(r'\D', '', phone)
+
+    # Handle US format with leading 1
+    if len(digits) == 11 and digits.startswith('1'):
+        digits = digits[1:]
+
+    # Return 10 digits or empty if invalid
+    if len(digits) == 10:
+        return digits
+    else:
+        return ''
+
+
+def format_phone(phone):
+    """
+    Format 10-digit phone number as (123) 456-7890.
+    Returns original value if not 10 digits.
+    """
+    if not phone:
+        return ''
+
+    # Strip non-digits to handle already-formatted numbers
+    digits = re.sub(r'\D', '', phone)
+
+    if len(digits) == 10:
+        return f'({digits[0:3]}) {digits[3:6]}-{digits[6:10]}'
+    else:
+        return phone
+
 
 # Subtasks for each milestone phase
 MILESTONE_SUBTASKS = {

@@ -1,7 +1,16 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired
 from wtforms import StringField, TextAreaField, SelectField, BooleanField, SubmitField, HiddenField, IntegerField
-from wtforms.validators import DataRequired, Optional, Email, NumberRange
+from wtforms.validators import DataRequired, Optional, Email, NumberRange, ValidationError
+from utils import normalize_phone
+
+
+def validate_phone_number(form, field):
+    """Validate that phone number can be normalized to 10 digits."""
+    if field.data and field.data.strip():
+        normalized = normalize_phone(field.data)
+        if not normalized:
+            raise ValidationError('Phone number must be a valid 10-digit US number.')
 
 
 # Person type choices
@@ -29,7 +38,7 @@ class PersonForm(FlaskForm):
     """Form for adding/editing a person."""
     name = StringField('Name', validators=[DataRequired()])
     email = StringField('Email', validators=[Optional(), Email()])
-    phone = StringField('Phone', validators=[Optional()])
+    phone = StringField('Phone', validators=[Optional(), validate_phone_number])
     person_type = SelectField('Type', choices=PERSON_TYPES, default='Other')
     card_preference = SelectField('Card Preference', choices=CARD_PREFERENCES, default='E-card')
     gets_gift = BooleanField('Gets Gift')

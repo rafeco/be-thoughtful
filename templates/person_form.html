@@ -35,7 +35,8 @@
 
                     <div class="mb-3">
                         {{ form.phone.label(class="form-label") }}
-                        {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else "")) }}
+                        {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else ""), placeholder="(123) 456-7890") }}
+                        <small class="form-text text-muted">Any format accepted - will be normalized to 10 digits</small>
                         {% if form.phone.errors %}
                             <div class="invalid-feedback">
                                 {% for error in form.phone.errors %}{{ error }}{% endfor %}

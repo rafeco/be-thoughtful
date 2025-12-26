@@ -8,7 +8,8 @@ from models import db, Person, GiftIdea, Task, Milestone, AnnualSummary
 from forms import PersonForm, GiftIdeaForm, ImportCSVForm, CompleteGiftForm
 from utils import (
     get_active_year, get_current_phase, check_and_perform_rollover,
-    perform_rollover, initialize_database, days_until_christmas
+    perform_rollover, initialize_database, days_until_christmas,
+    normalize_phone, format_phone
 )
 
 import os
@@ -25,6 +26,9 @@ db.init_app(app)
 # Initialize database on first run
 with app.app_context():
     initialize_database()
+
+# Add custom template filters
+app.jinja_env.filters['format_phone'] = format_phone
 
 
 @app.route('/')
@@ -151,7 +155,8 @@ def person_new():
 
         # Check phone if provided
         if form.phone.data and form.phone.data.strip():
-            if Person.query.filter_by(active=True, phone=form.phone.data).first():
+            normalized = normalize_phone(form.phone.data)
+            if normalized and Person.query.filter_by(active=True, phone=normalized).first():
                 duplicates.append(f'phone "{form.phone.data}"')
 
         if duplicates:
@@ -161,7 +166,7 @@ def person_new():
         person = Person(
             name=form.name.data,
             email=form.email.data,
-            phone=form.phone.data,
+            phone=normalize_phone(form.phone.data),
             person_type=form.person_type.data,
             card_preference=form.card_preference.data,
             gets_gift=form.gets_gift.data,
@@ -223,7 +228,7 @@ def person_edit(id):
     if form.validate_on_submit():
         person.name = form.name.data
         person.email = form.email.data
-        person.phone = form.phone.data
+        person.phone = normalize_phone(form.phone.data)
         person.person_type = form.person_type.data
         person.card_preference = form.card_preference.data
         person.gets_gift = form.gets_gift.data
@@ -302,7 +307,7 @@ def import_csv():
                 if '@' in contact_info:
                     email = contact_info
                 else:
-                    phone = contact_info
+                    phone = normalize_phone(contact_info)
 
             # Check for duplicate (by name and either email or phone)
             existing = None
