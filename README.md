@@ -301,8 +301,6 @@ This is a local, single-user application with no cloud dependencies. All data is
 
 For technical details and development documentation, see [TECHNICAL.md](TECHNICAL.md).
 
-For feature specifications, see [spec.md](spec.md).
-
 ## Future Ideas
 
 - Shopping links with gift ideas
