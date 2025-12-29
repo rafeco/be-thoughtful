@@ -70,6 +70,13 @@ class ImportCSVForm(FlaskForm):
     submit = SubmitField('Upload')
 
 
+class ImportEcardDeliveriesForm(FlaskForm):
+    """Form for importing e-card delivery data with year selection."""
+    csv_file = FileField('CSV File', validators=[FileRequired()])
+    year = IntegerField('Year', validators=[DataRequired(), NumberRange(min=2020, max=2030)])
+    submit = SubmitField('Upload')
+
+
 class CompleteGiftForm(FlaskForm):
     """Form for marking a gift as given."""
     actual_gift = TextAreaField('What did you give?', validators=[Optional()])

@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}E-card Messages - Be Thoughtful{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>Messages from Recipients</h2>
+        {% if available_years %}
+        <div class="btn-group" role="group">
+            {% for year in available_years %}
+                <a href="{{ url_for('ecard_messages', year=year) }}"
+                   class="btn btn-sm {% if year == selected_year %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ year }}
+                </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('ecard_deliveries', year=selected_year) }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Deliveries
+    </a>
+</div>
+
+{% if deliveries %}
+    <div class="alert alert-info mb-4">
+        <i class="bi bi-chat-dots"></i>
+        You've received <strong>{{ deliveries|length }} messages</strong> from your e-card recipients this year.
+    </div>
+
+    <div class="row">
+        {% for delivery in deliveries %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title mb-0">
+                            <a href="{{ url_for('person_detail', id=delivery.person.id) }}" class="text-decoration-none">
+                                {{ delivery.person.name }}
+                            </a>
+                        </h5>
+                        <span class="badge bg-primary">{{ delivery.person.person_type }}</span>
+                    </div>
+
+                    <div class="message-box p-3 mb-3 bg-light rounded">
+                        <p class="mb-0" style="white-space: pre-wrap;">{{ delivery.message }}</p>
+                    </div>
+
+                    <div class="text-muted small">
+                        <i class="bi bi-calendar3"></i>
+                        {{ delivery.imported_date.strftime('%B %d, %Y') }}
+                        &nbsp;•&nbsp;
+                        {% if delivery.contact_type == 'email' %}
+                            <i class="bi bi-envelope"></i> Email
+                        {% else %}
+                            <i class="bi bi-phone"></i> SMS
+                        {% endif %}
+                        &nbsp;•&nbsp;
+                        {% if delivery.status == 'Page viewed' %}
+                            <span class="text-success">
+                                <i class="bi bi-eye"></i> Page viewed
+                            </span>
+                        {% elif delivery.status == 'Email opened' %}
+                            <span class="text-success">
+                                <i class="bi bi-envelope-open"></i> Email opened
+                            </span>
+                        {% else %}
+                            {{ delivery.status }}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <style>
+        .message-box {
+            border-left: 4px solid #0d6efd;
+            font-style: italic;
+        }
+        .card {
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+{% else %}
+    <div class="alert alert-info">
+        <i class="bi bi-chat-dots"></i>
+        <strong>No messages yet for {{ selected_year }}</strong>
+        <p class="mb-0 mt-2">When recipients respond to your e-cards with messages, they'll appear here after you import the delivery data.</p>
+    </div>
+    <a href="{{ url_for('ecard_deliveries', year=selected_year) }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Deliveries
+    </a>
+{% endif %}
+{% endblock %}

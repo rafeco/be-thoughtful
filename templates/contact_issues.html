@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Issues - Be Thoughtful{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>People Needing Contact Info Updates</h2>
+        {% if available_years %}
+        <div class="btn-group" role="group">
+            {% for year in available_years %}
+                <a href="{{ url_for('contact_issues', year=year) }}"
+                   class="btn btn-sm {% if year == selected_year %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ year }}
+                </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('ecard_deliveries', year=selected_year) }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Deliveries
+    </a>
+</div>
+
+{% if people_with_issues %}
+    <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle"></i>
+        <strong>{{ people_with_issues|length }} people</strong> have bounced e-cards and may need their contact information updated.
+    </div>
+
+    <div class="row">
+        {% for item in people_with_issues %}
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <a href="{{ url_for('person_detail', id=item.person.id) }}">
+                            {{ item.person.name }}
+                        </a>
+                    </h5>
+                    <p class="card-text text-muted mb-2">
+                        <strong>Bounced contacts:</strong>
+                    </p>
+                    <ul class="list-unstyled mb-3">
+                        {% for contact in item.bounced_contacts %}
+                        <li>
+                            {% if contact.type == 'email' %}
+                                <i class="bi bi-envelope text-danger"></i>
+                            {% else %}
+                                <i class="bi bi-phone text-danger"></i>
+                            {% endif %}
+                            <code>{{ contact.contact }}</code>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <strong>Current info:</strong><br>
+                            {% if item.person.email %}
+                                <i class="bi bi-envelope"></i> {{ item.person.email }}<br>
+                            {% endif %}
+                            {% if item.person.phone %}
+                                <i class="bi bi-phone"></i> {{ item.person.phone|format_phone }}<br>
+                            {% endif %}
+                        </small>
+                    </p>
+                    <a href="{{ url_for('person_edit', id=item.person.id) }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil"></i> Update Contact Info
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle"></i>
+        <strong>Great news!</strong> No bounced e-cards for {{ selected_year }}. All contact information appears to be working.
+    </div>
+    <a href="{{ url_for('ecard_deliveries', year=selected_year) }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Deliveries
+    </a>
+{% endif %}
+{% endblock %}

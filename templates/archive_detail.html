@@ -53,6 +53,46 @@
     </div>
 </div>
 
+<!-- E-card Delivery Stats -->
+{% if total_deliveries > 0 %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">E-card Delivery Summary</h5>
+                <a href="{{ url_for('ecard_deliveries', year=summary.year) }}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-envelope-check"></i> View Details
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <h3 class="text-primary">{{ total_deliveries }}</h3>
+                        <p class="mb-0">Total E-cards Sent</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="text-success">{{ messages_received }}</h3>
+                        <p class="mb-0">
+                            <a href="{{ url_for('ecard_messages', year=summary.year) }}">Messages Received</a>
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h3 class="{% if bounced_count > 0 %}text-danger{% else %}text-muted{% endif %}">{{ bounced_count }}</h3>
+                        <p class="mb-0">
+                            {% if bounced_count > 0 %}
+                                <a href="{{ url_for('contact_issues', year=summary.year) }}">Bounced / Need Update</a>
+                            {% else %}
+                                Bounced / Need Update
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Milestones -->
 <div class="row mb-4">
     <div class="col-md-6">

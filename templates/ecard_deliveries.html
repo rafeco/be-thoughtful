@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}E-card Deliveries - Be Thoughtful{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2>E-card Delivery Status</h2>
+        {% if available_years %}
+        <div class="btn-group" role="group">
+            {% for year in available_years %}
+                <a href="{{ url_for('ecard_deliveries', year=year) }}"
+                   class="btn btn-sm {% if year == selected_year %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ year }}
+                </a>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    <a href="{{ url_for('import_ecard_deliveries') }}" class="btn btn-primary">
+        <i class="bi bi-upload"></i> Import Delivery Data
+    </a>
+</div>
+
+{% if delivery_data %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in delivery_data %}
+                            {% for delivery in item.deliveries %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('person_detail', id=item.person.id) }}">
+                                        {{ item.person.name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if delivery.contact_type == 'email' %}
+                                        <i class="bi bi-envelope"></i>
+                                    {% else %}
+                                        <i class="bi bi-phone"></i>
+                                    {% endif %}
+                                    {{ delivery.contact_used }}
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ delivery.contact_type }}</span>
+                                </td>
+                                <td>
+                                    {% if delivery.status == 'Page viewed' %}
+                                        <span class="badge bg-success">{{ delivery.status }}</span>
+                                    {% elif delivery.status == 'Email opened' %}
+                                        <span class="badge bg-success">{{ delivery.status }}</span>
+                                    {% elif delivery.status == 'Sent' %}
+                                        <span class="badge bg-info">{{ delivery.status }}</span>
+                                    {% elif delivery.status == 'Bounced' %}
+                                        <span class="badge bg-danger">{{ delivery.status }}</span>
+                                    {% elif delivery.status == 'Sending...' %}
+                                        <span class="badge bg-warning">{{ delivery.status }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ delivery.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if delivery.message %}
+                                        <span class="text-muted">{{ delivery.message[:50] }}{% if delivery.message|length > 50 %}...{% endif %}</span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{{ url_for('contact_issues', year=selected_year) }}" class="btn btn-warning">
+            <i class="bi bi-exclamation-triangle"></i> View Contact Issues
+        </a>
+        <a href="{{ url_for('ecard_messages', year=selected_year) }}" class="btn btn-success">
+            <i class="bi bi-chat-dots"></i> View Messages
+        </a>
+    </div>
+{% else %}
+    <div class="alert alert-info">
+        <h5>No delivery data yet</h5>
+        <p>Import your Paperless Post recipient list CSV to track e-card deliveries.</p>
+        <a href="{{ url_for('import_ecard_deliveries') }}" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Import Delivery Data
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

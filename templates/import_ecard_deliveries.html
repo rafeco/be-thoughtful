@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Import E-card Deliveries - Be Thoughtful{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Import E-card Delivery Data</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Upload the recipient list CSV from Paperless Post to track delivery status and messages.
+                </p>
+
+                <div class="alert alert-info">
+                    <strong>How it works:</strong>
+                    <ul class="mb-0 mt-2">
+                        <li>Matches recipients to existing people in your database</li>
+                        <li>Tracks delivery status (Sent, Opened, Bounced, etc.)</li>
+                        <li>Saves messages from recipients</li>
+                        <li>Updates existing records if you re-import</li>
+                    </ul>
+                </div>
+
+                <form method="post" enctype="multipart/form-data" id="csvImportForm">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Year Selection -->
+                    <div class="mb-3">
+                        <label for="year" class="form-label">Season Year</label>
+                        {{ form.year(class="form-control", style="max-width: 150px;") }}
+                        <small class="form-text text-muted">
+                            Which holiday season is this delivery data for? Defaults to {{ default_year }}.
+                        </small>
+                        {% if form.year.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.year.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Drag and Drop Zone -->
+                    <div id="dropZone" class="drop-zone mb-3">
+                        <div class="drop-zone-content">
+                            <i class="bi bi-cloud-upload fs-1 text-muted mb-3"></i>
+                            <p class="mb-2"><strong>Drag and drop your CSV file here</strong></p>
+                            <p class="text-muted mb-3">or</p>
+                            <label for="csv_file" class="btn btn-outline-primary">
+                                <i class="bi bi-folder2-open"></i> Browse Files
+                            </label>
+                            {{ form.csv_file(class="d-none", id="csv_file") }}
+                            <p class="text-muted mt-3 mb-0" id="fileName"></p>
+                        </div>
+                    </div>
+
+                    {% if form.csv_file.errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.csv_file.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between">
+                        {{ form.submit(class="btn btn-primary", id="submitBtn", disabled=true) }}
+                        <a href="{{ url_for('ecard_deliveries') }}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

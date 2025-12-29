@@ -48,16 +48,33 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('ecard_deliveries') }}">
+                            <i class="bi bi-envelope-check"></i> E-card Status
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('archive_list') }}">
                             <i class="bi bi-archive"></i> Archive
                         </a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('import_csv') }}">
-                            <i class="bi bi-upload"></i> Import CSV
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="importDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-upload"></i> Import
                         </a>
+                        <ul class="dropdown-menu" aria-labelledby="importDropdown">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('import_csv') }}">
+                                    <i class="bi bi-people"></i> Import People
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('import_ecard_deliveries') }}">
+                                    <i class="bi bi-envelope-check"></i> Import E-card Deliveries
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('person_new') }}">

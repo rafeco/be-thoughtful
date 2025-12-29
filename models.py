@@ -24,6 +24,7 @@ class Person(db.Model):
     # Relationships
     gift_ideas = db.relationship('GiftIdea', backref='person', cascade='all, delete-orphan', lazy=True)
     tasks = db.relationship('Task', backref='person', cascade='all, delete-orphan', lazy=True)
+    ecard_deliveries = db.relationship('EcardDelivery', backref='person', cascade='all, delete-orphan', lazy=True)
 
     def __repr__(self):
         return f'<Person {self.name}>'
@@ -93,3 +94,21 @@ class AnnualSummary(db.Model):
 
     def __repr__(self):
         return f'<AnnualSummary {self.year}>'
+
+
+class EcardDelivery(db.Model):
+    __tablename__ = 'ecard_deliveries'
+
+    id = db.Column(db.Integer, primary_key=True)
+    person_id = db.Column(db.Integer, db.ForeignKey('people.id'), nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String(50))  # Sent, Page viewed, Email opened, Bounced, Sending...
+    contact_used = db.Column(db.String(200))  # Email or phone used for this delivery
+    contact_type = db.Column(db.String(10))  # 'email' or 'sms'
+    message = db.Column(db.Text)  # Message from recipient
+    imported_date = db.Column(db.Date, default=date.today)
+
+    __table_args__ = (db.UniqueConstraint('person_id', 'year', 'contact_used', name='unique_person_year_contact'),)
+
+    def __repr__(self):
+        return f'<EcardDelivery {self.person.name} {self.year} - {self.status}>'

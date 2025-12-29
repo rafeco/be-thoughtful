@@ -5,8 +5,8 @@ import csv
 import io
 import sys
 from sqlalchemy.orm.attributes import flag_modified
-from models import db, Person, GiftIdea, Task, Milestone, AnnualSummary
-from forms import PersonForm, GiftIdeaForm, ImportCSVForm, CompleteGiftForm
+from models import db, Person, GiftIdea, Task, Milestone, AnnualSummary, EcardDelivery
+from forms import PersonForm, GiftIdeaForm, ImportCSVForm, ImportEcardDeliveriesForm, CompleteGiftForm
 from utils import (
     get_active_year, get_current_phase, check_and_perform_rollover,
     perform_rollover, initialize_database, days_until_christmas,
@@ -343,6 +343,102 @@ def import_csv():
     return render_template('import.html', form=form)
 
 
+@app.route('/import-ecard-deliveries', methods=['GET', 'POST'])
+def import_ecard_deliveries():
+    """Import e-card delivery data from Paperless Post CSV."""
+    form = ImportEcardDeliveriesForm()
+
+    # Set default year: most recently completed season
+    # If we're Jan-Aug, default to previous year
+    # If we're Sep-Dec, default to current year
+    today = date.today()
+    if today.month <= 8:
+        default_year = today.year - 1
+    else:
+        default_year = today.year
+
+    if request.method == 'GET':
+        form.year.data = default_year
+
+    if form.validate_on_submit():
+        csv_file = request.files['csv_file']
+        delivery_year = form.year.data
+
+        # Read CSV
+        stream = io.StringIO(csv_file.stream.read().decode("UTF8"), newline=None)
+        csv_reader = csv.DictReader(stream)
+
+        imported_count = 0
+        updated_count = 0
+        skipped_count = 0
+        errors = []
+
+        for row in csv_reader:
+            name = row.get('Full Name', '').strip()
+            contact_info = row.get('Email/Phone Number', '').strip()
+            status = row.get('Status', '').strip()
+            message = row.get('Message', '').strip()
+            contact_type = row.get('Type', '').strip()  # 'email' or 'sms'
+
+            if not name or not contact_info:
+                continue
+
+            # Normalize phone if it's SMS
+            if contact_type == 'sms':
+                contact_info = normalize_phone(contact_info)
+
+            # Find matching person by contact info
+            person = None
+            if contact_type == 'sms' and contact_info:
+                person = Person.query.filter_by(phone=contact_info, active=True).first()
+            elif contact_type == 'email':
+                person = Person.query.filter_by(email=contact_info, active=True).first()
+
+            if not person:
+                # Try to find by name as fallback
+                person = Person.query.filter_by(name=name, active=True).first()
+                if not person:
+                    errors.append(f'Could not find person: {name} ({contact_info})')
+                    skipped_count += 1
+                    continue
+
+            # Check if delivery record already exists
+            existing = EcardDelivery.query.filter_by(
+                person_id=person.id,
+                year=delivery_year,
+                contact_used=contact_info
+            ).first()
+
+            if existing:
+                # Update existing record
+                existing.status = status
+                existing.message = message if message else existing.message
+                existing.imported_date = date.today()
+                updated_count += 1
+            else:
+                # Create new delivery record
+                delivery = EcardDelivery(
+                    person_id=person.id,
+                    year=delivery_year,
+                    status=status,
+                    contact_used=contact_info,
+                    contact_type=contact_type,
+                    message=message if message else None
+                )
+                db.session.add(delivery)
+                imported_count += 1
+
+        db.session.commit()
+
+        flash(f'Imported {imported_count} new deliveries, updated {updated_count} for {delivery_year}. Skipped {skipped_count}.', 'success')
+        if errors:
+            flash(f'Errors: {"; ".join(errors[:5])}', 'warning')
+
+        return redirect(url_for('ecard_deliveries', year=delivery_year))
+
+    return render_template('import_ecard_deliveries.html', form=form, default_year=default_year)
+
+
 @app.route('/shopping-list')
 def shopping_list():
     """View all people who get gifts and their ideas."""
@@ -564,10 +660,22 @@ def archive_detail(year):
                 'gift': task.actual_gift or 'No details recorded'
             })
 
+    # Get e-card delivery stats for this year
+    total_deliveries = EcardDelivery.query.filter_by(year=year).count()
+    messages_received = EcardDelivery.query.filter(
+        EcardDelivery.year == year,
+        EcardDelivery.message.isnot(None),
+        EcardDelivery.message != ''
+    ).count()
+    bounced_count = EcardDelivery.query.filter_by(year=year, status='Bounced').count()
+
     return render_template('archive_detail.html',
                            summary=summary,
                            milestones=milestones,
-                           gift_recipients=gift_recipients)
+                           gift_recipients=gift_recipients,
+                           total_deliveries=total_deliveries,
+                           messages_received=messages_received,
+                           bounced_count=bounced_count)
 
 
 @app.route('/tasks/create/<int:person_id>/<task_type>', methods=['POST'])
@@ -672,6 +780,119 @@ def api_rollover_check():
         })
 
     return jsonify({'rollover_needed': False})
+
+
+@app.route('/ecard-deliveries')
+def ecard_deliveries():
+    """View e-card delivery status for all people."""
+    # Get year from query param, or default to most recent season
+    today = date.today()
+    if today.month <= 8:
+        default_year = today.year - 1
+    else:
+        default_year = today.year
+
+    selected_year = request.args.get('year', default_year, type=int)
+
+    # Get all deliveries for selected year
+    deliveries = EcardDelivery.query.filter_by(year=selected_year).all()
+
+    # Group by person
+    delivery_data = {}
+    for delivery in deliveries:
+        person_id = delivery.person_id
+        if person_id not in delivery_data:
+            delivery_data[person_id] = {
+                'person': delivery.person,
+                'deliveries': []
+            }
+        delivery_data[person_id]['deliveries'].append(delivery)
+
+    # Sort by person name
+    sorted_data = sorted(delivery_data.values(), key=lambda x: x['person'].name)
+
+    # Get available years for year selector
+    available_years = db.session.query(EcardDelivery.year).distinct().order_by(EcardDelivery.year.desc()).all()
+    available_years = [y[0] for y in available_years]
+
+    return render_template('ecard_deliveries.html',
+                           delivery_data=sorted_data,
+                           selected_year=selected_year,
+                           available_years=available_years)
+
+
+@app.route('/contact-issues')
+def contact_issues():
+    """View people with bounced e-cards who need contact info updates."""
+    # Get year from query param, or default to most recent season
+    today = date.today()
+    if today.month <= 8:
+        default_year = today.year - 1
+    else:
+        default_year = today.year
+
+    selected_year = request.args.get('year', default_year, type=int)
+
+    # Get all bounced deliveries for selected year
+    bounced_deliveries = EcardDelivery.query.filter_by(
+        year=selected_year,
+        status='Bounced'
+    ).all()
+
+    # Group by person to avoid duplicates
+    people_with_issues = {}
+    for delivery in bounced_deliveries:
+        person_id = delivery.person_id
+        if person_id not in people_with_issues:
+            people_with_issues[person_id] = {
+                'person': delivery.person,
+                'bounced_contacts': []
+            }
+        people_with_issues[person_id]['bounced_contacts'].append({
+            'contact': delivery.contact_used,
+            'type': delivery.contact_type
+        })
+
+    # Sort by person name
+    sorted_data = sorted(people_with_issues.values(), key=lambda x: x['person'].name)
+
+    # Get available years for year selector
+    available_years = db.session.query(EcardDelivery.year).distinct().order_by(EcardDelivery.year.desc()).all()
+    available_years = [y[0] for y in available_years]
+
+    return render_template('contact_issues.html',
+                           people_with_issues=sorted_data,
+                           selected_year=selected_year,
+                           available_years=available_years)
+
+
+@app.route('/ecard-messages')
+def ecard_messages():
+    """View all messages received from e-card recipients."""
+    # Get year from query param, or default to most recent season
+    today = date.today()
+    if today.month <= 8:
+        default_year = today.year - 1
+    else:
+        default_year = today.year
+
+    selected_year = request.args.get('year', default_year, type=int)
+
+    # Get all deliveries with messages for selected year
+    deliveries_with_messages = EcardDelivery.query.filter(
+        EcardDelivery.year == selected_year,
+        EcardDelivery.message.isnot(None),
+        EcardDelivery.message != ''
+    ).order_by(EcardDelivery.imported_date.desc()).all()
+
+    # Get available years for year selector
+    available_years = db.session.query(EcardDelivery.year).distinct().order_by(EcardDelivery.year.desc()).all()
+    available_years = [y[0] for y in available_years]
+
+    return render_template('ecard_messages.html',
+                           deliveries=deliveries_with_messages,
+                           selected_year=selected_year,
+                           available_years=available_years)
 
 
 @app.route('/about')
