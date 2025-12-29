@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from datetime import date
 import csv
