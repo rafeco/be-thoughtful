@@ -14,7 +14,8 @@ A lightweight, local-first web application that turns Christmas gift-giving and 
 - **Year Rollover** - Automatic archiving and planning for next year (or manual if you finish early)
 - **Pre-planning Phase** - Get helpful suggestions during Jan-Aug before the planning cycle begins
 - **Archive View** - Historical record of previous years with detailed stats
-- **CSV Import** - Import contacts from Paperless Post with drag & drop and automatic deduplication
+- **CSV Import** - Import contacts and e-card delivery data from Paperless Post exports with drag & drop and automatic deduplication
+- **E-card Delivery Tracking** - Import delivery status, track bounced contacts, and view messages from recipients
 - **AI Assistant Integration** - Copy contextual prompts for Claude/ChatGPT to help brainstorm gifts and write cards
 
 ## Quick Start
@@ -59,12 +60,13 @@ That's it! The database will be created automatically on first run.
 
 ## First-Time Setup
 
-### Option 1: Import from CSV
+### Option 1: Import from Paperless Post
 
-1. Click **Import CSV** in the navigation
-2. Upload your Paperless Post CSV file (see `unsent-invites.csv` for format)
-3. Review imported contacts
-4. Edit people to set card preferences and gift status
+1. Export your contact list from Paperless Post
+2. Click **Import** → **Import People** in the navigation
+3. Upload the CSV file with drag & drop
+4. Review imported contacts
+5. Edit people to set card preferences and gift status
 
 ### Option 2: Add People Manually
 
@@ -196,6 +198,34 @@ The app includes AI assistance features to help you brainstorm gifts and write t
 - Track conversations for each person
 - Simple, focused assistance when you need it
 
+### Paperless Post Integration
+
+The app is designed to work seamlessly with [Paperless Post](https://www.paperlesspost.com/) for e-card management.
+
+**Importing Contacts**:
+1. Export your contact list from Paperless Post (any event or card)
+2. Click **Import** → **Import People** in the navigation
+3. Upload the CSV file with drag & drop or file browser
+4. The app automatically detects email vs. phone numbers
+5. Duplicate contacts are skipped based on name and contact info
+
+**Tracking E-card Deliveries**:
+1. Send your holiday e-card through Paperless Post
+2. Download the recipient list CSV from Paperless Post (includes delivery status and messages)
+3. Click **Import** → **Import E-card Deliveries**
+4. Select the year and upload the CSV
+5. View delivery status, bounced contacts, and recipient messages
+
+**What Gets Tracked**:
+- Delivery status (Sent, Page viewed, Email opened, Bounced, etc.)
+- Contact info used (email or SMS)
+- Messages from recipients
+- Year-over-year delivery history
+
+**Re-importing**: You can re-import the same CSV multiple times as Paperless Post updates delivery status. The app will update existing records rather than creating duplicates.
+
+**CSV Format**: All CSV import features expect Paperless Post's standard export format with columns like "Full Name", "Email/Phone Number", "Status", "Message", and "Type".
+
 ## Technical Details
 
 For developers and technical documentation, see [TECHNICAL.md](TECHNICAL.md) which includes:
@@ -208,12 +238,13 @@ For developers and technical documentation, see [TECHNICAL.md](TECHNICAL.md) whi
 
 ## Tips for Success
 
-1. **Import early**: Start in September by importing your contacts
+1. **Import early**: Start in September by importing your contacts from Paperless Post
 2. **Capture ideas year-round**: Add gift ideas whenever you think of them
 3. **Review people periodically**: Update card preferences and gift status
 4. **Use the timeline**: Follow the monthly guidance on the dashboard
 5. **Track what you actually gave**: Fill in actual gifts to build history
-6. **Review the archive**: Look at previous years for inspiration
+6. **Import delivery data**: After sending e-cards, import the delivery data to track messages and bounced contacts
+7. **Review the archive**: Look at previous years for inspiration
 
 ## Backup and Restore
 
@@ -256,7 +287,10 @@ This will:
 If you need to reset the database, delete `instance/database.db` and restart the server. A fresh database will be created automatically.
 
 ### CSV Import
-Your CSV must have columns named `Full Name` and `Email/Phone Number`. Other columns are ignored.
+All CSV import features are designed for Paperless Post exports:
+- **People import**: Requires columns `Full Name` and `Email/Phone Number`
+- **E-card delivery import**: Requires columns `Full Name`, `Email/Phone Number`, `Status`, `Message`, and `Type`
+- If your CSV is from a different source, you'll need to rename columns to match Paperless Post's format
 
 ### Year rollover
 Automatic rollover happens on first access after December 31st. For manual archiving before the year ends, use the Archive page.
