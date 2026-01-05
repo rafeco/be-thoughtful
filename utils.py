@@ -74,13 +74,11 @@ MILESTONE_SUBTASKS = {
 def get_active_year():
     """Return the year we're currently planning for.
 
-    September 1 - December 31: Current year (unless already archived)
-    January 1 - August 31: Next year
-
-    If the current year has been archived, return next year instead.
+    Returns current calendar year unless it has been archived,
+    in which case it returns next year.
     """
     today = date.today()
-    base_year = today.year if today.month >= 9 else today.year + 1
+    base_year = today.year
 
     # Check if this year has already been archived
     from models import AnnualSummary
@@ -94,13 +92,8 @@ def get_active_year():
 def get_current_phase():
     """Return the current planning phase based on today's date."""
     today = date.today()
-    active_year = get_active_year()
 
-    # If we're planning for next year (Jan-Aug), we're in pre-planning
-    if today.year < active_year:
-        return 'Pre-planning'
-
-    # If we're in the active year (Sep-Dec)
+    # Active planning months are Sep-Dec
     if today.month == 9:
         return 'September'
     elif today.month == 10:
@@ -110,6 +103,7 @@ def get_current_phase():
     elif today.month == 12:
         return 'December'
     else:
+        # Jan-Aug is pre-planning
         return 'Pre-planning'
 
 
